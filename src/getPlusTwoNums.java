@@ -15,8 +15,12 @@ public class getPlusTwoNums {
      * 这是LeetCode中常用的链表节点结构
      */
     public static class ListNode {
+        //这里是类的静态上下文部分
         int val;        // 节点存储的整数值
-        ListNode next;  // 指向下一个节点的指针
+        ListNode next;  // 指向下一个节点的指针。
+        //这是一个自引用类型，在进行编译时，编译器知道这是一个类名，并且已经在当前作用域中声明，并且next是一个引用变量
+        //能够指向ListNode类型的对象。这样虽然整个类型还没有定义结束，但类名已经可用
+        //在C语言中，这就相当于设计了一个指向自己的指针
         
         /**
          * 默认构造函数
@@ -48,17 +52,22 @@ public class getPlusTwoNums {
         
         /**
          * 重写toString方法，便于调试和输出
+         * 重写toString方法在工业上也是推荐的，这能够提供有意义的字符串输出，防止暴露敏感信息并且定制化输出长度限制，避免不必要的性能开销
          * @return 链表的字符串表示
          */
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            ListNode current = this;
+            ListNode current = this;//this指向调用这个toString方法的对象实例，即某个链表节点（通常为头结点）
+            //this的作用域是当前类的实例方法内部，在这个例子中，即为toString方法
+            //此外构造方法，实例方法中可以使用this，但静态方法和类的静态部分不能使用
             while (current != null) {
                 sb.append(current.val);
+                //实际上，这个重写方法的效果，就比自带的多了个箭头
                 if (current.next != null) {
                     sb.append(" -> ");
                 }
+                //将指针指向下一个节点对象
                 current = current.next;
             }
             return sb.toString();
