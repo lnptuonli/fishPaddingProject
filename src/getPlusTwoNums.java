@@ -1,3 +1,4 @@
+import java.util.Objects;
 
 /**
  * Definition for singly-linked list.
@@ -156,7 +157,12 @@ public class getPlusTwoNums {
 
         ListNode l1 = createList(arr1);
         ListNode l2 = createList(arr2);
-
+        int hash = Objects.hash(l1, l2);
+        int hash2 =  l1.hashCode()+l2.hashCode();
+        int hash3 =  l1.hashCode()+l2.hashCode();
+        System.out.println(hash);
+        System.out.println(hash2);
+        System.out.println(hash3);
         System.out.println("链表1: " + l1);
         System.out.println("链表2: " + l2);
 
