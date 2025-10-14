@@ -108,6 +108,7 @@ public class AnnotationProcessing {
 import java.lang.annotation.*;
 
 // 1. @Target - 指定注解可以用在哪些地方
+//用法：
 @Target({
     ElementType.TYPE,           // 类、接口、枚举
     ElementType.FIELD,          // 字段
@@ -118,6 +119,7 @@ import java.lang.annotation.*;
     ElementType.ANNOTATION_TYPE,// 注解
     ElementType.PACKAGE         // 包
 })
+//比方说，要定义一个自己的注解MyAnnotation，通过上面的Target就能指定MyAnnotation这个注解可以用在什么地方
 public @interface MyAnnotation {
 }
 
@@ -128,15 +130,51 @@ public @interface MyAnnotation {
 public @interface MyAnnotation {
 }
 
-// 3. @Documented - 注解是否包含在JavaDoc中
+// 3. @Documented - 注解是否包含在JavaDoc中，JavaDoc是官方提供的文档生成工具，如果在编写内部类之类的建议加上，会让团队成员更清楚
 @Documented
 public @interface MyAnnotation {
 }
 
 // 4. @Inherited - 子类是否继承父类的注解
-@Inherited
-public @interface MyAnnotation {
+//@Inherited 只对 类级别的注解有效（@Target(ElementType.TYPE)）。
+//它不会作用于方法、字段、构造器等。
+//只有直接继承的子类会继承，接口实现或多级继承不会自动传递
+//如果子类自己也加了同样的注解，会覆盖父类的注解。
+import java.lang.annotation.*;
+import java.lang.reflect.*;
+
+// 定义一个可继承的注解
+@Inherited//表示如果MyAnnotation注解修饰的类Parent被继承
+@Retention(RetentionPolicy.RUNTIME)// 运行期：运行时保留，可通过反射读取
+@Target(ElementType.TYPE)
+@interface MyAnnotation {
+    String value() default "来自父类的注解";
 }
+
+// 父类上使用注解
+@MyAnnotation("父类注解")
+class Parent {
+}
+
+// 子类没有显式使用MyAnnotation注解
+class Child extends Parent {
+}
+
+// 测试类
+public class InheritedDemo {
+    public static void main(String[] args) {
+        Class<?> clazz = Child.class;// 运行期：运行时保留，可通过反射读取
+        MyAnnotation annotation = clazz.getAnnotation(MyAnnotation.class);
+
+        if (annotation != null) {
+            System.out.println("子类继承了注解，值为：" + annotation.value());
+        } else {
+            System.out.println("子类没有继承注解");
+        }
+    }
+}
+// 输出结果：
+子类继承了注解，值为：父类注解
 
 // 5. @Repeatable - 注解是否可重复使用（Java 8+）
 @Repeatable(MyAnnotations.class)
@@ -184,6 +222,12 @@ public class JavaBuiltInAnnotations {
     public void multipleWarnings() {
         // 抑制多种警告
     }
+    // 常见警告类型：
+    // "unchecked"	使用了原始类型或类型转换不安全
+	// "deprecation"	使用了已过时的方法或类
+	// "rawtypes"	使用了没有泛型参数的原始类型
+	// "unused"	有变量或方法没有被使用
+	// "null"	可能存在空指针问题（取决于 IDE）
     
     // 4. @SafeVarargs - 抑制可变参数的警告（Java 7+）
     @SafeVarargs
@@ -192,19 +236,64 @@ public class JavaBuiltInAnnotations {
             System.out.println(arg);
         }
     }
+}
+```
+
+
+### @FunctionalInterface - 函数式接口（Java 8+）
+
+函数式接口是只包含一个抽象方法的接口。这个"函数"指的是"行为"，也就是你可以把它当作一个函数来传递、执行。虽然接口可以有多个默认方法或静态方法，但只要抽象方法只有一个，它就是函数式接口。
+
+#### 函数式接口的优势
+
+1. **简洁** - 用 Lambda 表达式代替匿名类，代码更清爽
+2. **可读性强** - 逻辑更集中，行为更明确
+3. **更强的抽象能力** - 可以把行为作为参数传递，提高灵活性
+4. **支持并行和流式处理** - 与 Stream API 配合使用，提升性能和表达力
+
+#### 函数式接口定义
+
+```java
+@FunctionalInterface
+// @FunctionalInterface是函数式接口的标记，编译器会检查其是否符合规范
+public interface MyFunction {
+    void apply();
     
-    // 5. @FunctionalInterface - 标记函数式接口（Java 8+）
-    @FunctionalInterface
-    public interface MyFunction {
-        void apply();
-        
-        // 函数式接口只能有一个抽象方法
-        default void defaultMethod() {
-            System.out.println("默认方法");
-        }
+    // 函数式接口只能有一个抽象方法
+    default void defaultMethod() {
+        System.out.println("默认方法");
     }
 }
 ```
+
+#### 常见函数式接口
+
+来自 `java.util.function` 包的常用函数式接口：
+
+| 接口 | 功能描述 |
+|------|----------|
+| `Function<T, R>` | 接收一个参数，返回一个结果 |
+| `Predicate<T>` | 接收一个参数，返回布尔值（用于判断） |
+| `Consumer<T>` | 接收一个参数，无返回值（用于消费） |
+| `Supplier<T>` | 无参数，返回一个结果（用于生产） |
+| `UnaryOperator<T>` | 接收一个参数，返回相同类型的结果 |
+
+#### 使用示例
+
+```java
+@FunctionalInterface
+interface GreetingService {
+    void sayMessage(String message);
+}
+
+public class Demo {
+    public static void main(String[] args) {
+        GreetingService greet = msg -> System.out.println("Hello " + msg);
+        greet.sayMessage("凝");
+    }
+}
+```
+
 
 ## 自定义注解
 
@@ -1960,3 +2049,4 @@ public class PerformanceOptimization {
 5. **实践经验**：能够举例说明在项目中的应用
 
 通过掌握这些内容，您就能在面试中自信地回答注解相关的问题了！
+
