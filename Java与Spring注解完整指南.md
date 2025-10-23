@@ -242,12 +242,12 @@ public class JavaBuiltInAnnotations {
 
 ### @FunctionalInterface - 函数式接口（Java 8+）
 
-函数式接口是只包含一个抽象方法的接口。这个"函数"指的是"行为"，也就是你可以把它当作一个函数来传递、执行。虽然接口可以有多个默认方法或静态方法，但只要抽象方法只有一个，它就是函数式接口。
+函数式接口是只包含一个抽象方法的接口。这个"函数"指的是"行为"，也就是你可以把它当作一个函数来传递、执行。虽然接口可以有多个默认方法或静态方法，但只要抽象方法（即只有函数声明，没有函数体的方法）只有一个，它就是函数式接口。
 
 #### 函数式接口的优势
 
 1. **简洁** - 用 Lambda 表达式代替匿名类，代码更清爽
-2. **可读性强** - 逻辑更集中，行为更明确
+2. **可读性强** - 逻辑更集中，行为更明确（因为它只能有一个抽象方法）
 3. **更强的抽象能力** - 可以把行为作为参数传递，提高灵活性
 4. **支持并行和流式处理** - 与 Stream API 配合使用，提升性能和表达力
 
@@ -257,6 +257,7 @@ public class JavaBuiltInAnnotations {
 @FunctionalInterface
 // @FunctionalInterface是函数式接口的标记，编译器会检查其是否符合规范
 public interface MyFunction {
+    // 接口中的方法默认是 public abstract
     void apply();
     
     // 函数式接口只能有一个抽象方法
@@ -311,14 +312,14 @@ public @interface MyMethod {
 }
 
 // 2. 带多个属性的注解
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})//限定这个注解只能用于类或方法上
+@Retention(RetentionPolicy.RUNTIME)//注解信息在运行时仍然可见，可以通过反射读取
 public @interface ApiInfo {
-    String name();                          // 必填
+    String name();                          // 必填属性，使用注解时必须指定
     String description() default "";        // 选填，有默认值
     String version() default "1.0";
     String author() default "Unknown";
-    String[] tags() default {};
+    String[] tags() default {};			   // 选填，默认空数组
 }
 
 // 3. 权限注解示例
