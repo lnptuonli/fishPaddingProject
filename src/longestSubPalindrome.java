@@ -31,32 +31,31 @@ public class longestSubPalindrome {
      * @return 最长的回文子串
      */
     public String longestPalindrome(String s) {
-        // ============================================
-        // TODO: 在这里实现你的解法
-        // ============================================
-        
-        // 边界条件处理
-        if (s == null || s.length() < 1) {
-            return "";
-        }
-        int length = s.length();
-        int halflen= length/2;
-        String target= s.substring(0,1);
-        //中心扩展算法主逻辑
-        for (int i =0;i<s.length();i++)
-        {
+        if (s == null || s.length() < 1) return "";
 
+        String longest = "";
+
+        for (int i = 0; i < s.length(); i++) {
+            // 奇数长度回文
+            String odd = expandAroundCenter(s, i, i);
+            // 偶数长度回文
+            String even = expandAroundCenter(s, i, i + 1);
+
+            // 更新最长回文
+            if (odd.length() > longest.length()) longest = odd;
+            if (even.length() > longest.length()) longest = even;
         }
 
+        return longest;
+    }
 
-        // 在这里编写你的实现代码
-
-        
-        // ============================================
-        // TODO: 实现结束
-        // ============================================
-        
-        return "";  // 记得返回结果
+    // 中心扩展函数
+    private String expandAroundCenter(String s, int left, int right) {
+        while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+            left--;
+            right++;
+        }
+        return s.substring(left + 1, right); // 注意边界
     }
     
     /**
