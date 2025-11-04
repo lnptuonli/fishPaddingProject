@@ -135,6 +135,96 @@ public class AlgorithmIndex {
     }
     
     /**
+     * [LeetCode 13] 罗马数字转整数 - Roman to Integer
+     * 难度：★☆☆ (简单)
+     * 标签：哈希表、数学、字符串
+     * 
+     * 题目简述：
+     * 将罗马数字字符串转换为整数
+     * 
+     * 核心思路：
+     * 从左到右遍历，比较相邻字符：当前值 < 下一个值时减去，否则加上
+     * 
+     * 个人笔记：
+     * - 关键：小数字在大数字前面表示减法（如IV=4）
+     * - 遍历时比较当前和下一个字符的大小关系
+     * - 注意最后一个字符的边界处理
+     * - 时间复杂度O(n)，与第12题互为逆向操作
+     */
+    private void leetcode13_罗马数字转整数() {
+        RomanToInteger solution = new RomanToInteger();
+        // Ctrl/Cmd + 点击 RomanToInteger 即可跳转
+    }
+    
+    /**
+     * [LeetCode 14] 最长公共前缀 - Longest Common Prefix
+     * 难度：★☆☆ (简单)
+     * 标签：字符串
+     * 
+     * 题目简述：
+     * 查找字符串数组中的最长公共前缀
+     * 
+     * 核心思路：
+     * 横向扫描：以第一个字符串为基准，逐字符与其他字符串比较
+     * 
+     * 个人笔记：
+     * - 遇到不匹配或字符串结束立即返回
+     * - 注意边界：空字符串、单个字符串
+     * - 时间复杂度O(S)，S是所有字符总数
+     * - 简单题，一分钟速通！
+     */
+    private void leetcode14_最长公共前缀() {
+        LongestCommonPrefix solution = new LongestCommonPrefix();
+        // Ctrl/Cmd + 点击 LongestCommonPrefix 即可跳转
+    }
+    
+    /**
+     * [LeetCode 15] 三数之和 - 3Sum
+     * 难度：★★☆ (中等，经典题)
+     * 标签：数组、双指针、排序
+     * 
+     * 题目简述：
+     * 找出数组中所有和为0的不重复三元组
+     * 
+     * 核心思路：
+     * 排序 + 固定一个数 + 双指针找另外两个数
+     * 
+     * 个人笔记：
+     * - 先排序！这是关键
+     * - 固定nums[i]，用双指针找两数之和=-nums[i]
+     * - 三个地方去重：i、left、right（这是难点）
+     * - 时间复杂度O(n²)，比暴力O(n³)快得多
+     * - 去重逻辑要小心，容易出错
+     */
+    private void leetcode15_三数之和() {
+        ThreeSum solution = new ThreeSum();
+        // Ctrl/Cmd + 点击 ThreeSum 即可跳转
+    }
+    
+    /**
+     * [LeetCode 16] 最接近的三数之和 - 3Sum Closest
+     * 难度：★★☆ (中等)
+     * 标签：数组、双指针、排序
+     * 
+     * 题目简述：
+     * 找出最接近target的三数之和
+     * 
+     * 核心思路：
+     * 与第15题几乎完全相同，只是判断条件改为维护最小差距
+     * 
+     * 个人笔记：
+     * - 和第15题一模一样的思路：排序+双指针
+     * - 不需要去重（只要一个答案）
+     * - 维护 |sum - target| 最小
+     * - sum == target 时直接返回
+     * - 这题真的一分钟！
+     */
+    private void leetcode16_最接近的三数之和() {
+        ThreeSumClosest solution = new ThreeSumClosest();
+        // Ctrl/Cmd + 点击 ThreeSumClosest 即可跳转
+    }
+    
+    /**
      * [LeetCode 1] 两数之和 - Two Sum
      * 难度：★☆☆ (简单)
      * 标签：数组、哈希表
@@ -232,6 +322,8 @@ public class AlgorithmIndex {
      * 简单题目列表：
      * - [1] 两数之和
      * - [7] 整数反转
+     * - [13] 罗马数字转整数
+     * - [14] 最长公共前缀
      * 
      * 中等题目列表：
      * - [2] 两数相加
@@ -241,6 +333,8 @@ public class AlgorithmIndex {
      * - [8] 字符串转换整数(atoi)
      * - [11] 盛最多水的容器
      * - [12] 整数转罗马数字
+     * - [15] 三数之和 ⭐
+     * - [16] 最接近的三数之和
      * 
      * 困难题目列表：
      * (暂无)
@@ -257,10 +351,14 @@ public class AlgorithmIndex {
      * - [6] Z字形变换
      * - [8] 字符串转换整数(atoi)
      * - [12] 整数转罗马数字
+     * - [13] 罗马数字转整数
+     * - [14] 最长公共前缀
      * 
      * 数组专题：
      * - [1] 两数之和
      * - [11] 盛最多水的容器
+     * - [15] 三数之和 ⭐
+     * - [16] 最接近的三数之和
      * 
      * 链表专题：
      * - [2] 两数相加
@@ -268,9 +366,20 @@ public class AlgorithmIndex {
      * 数学专题：
      * - [7] 整数反转
      * - [12] 整数转罗马数字
+     * - [13] 罗马数字转整数
+     * 
+     * 哈希表专题：
+     * - [1] 两数之和
+     * - [13] 罗马数字转整数
      * 
      * 双指针专题：
      * - [11] 盛最多水的容器
+     * - [15] 三数之和 ⭐
+     * - [16] 最接近的三数之和
+     * 
+     * 排序专题：
+     * - [15] 三数之和
+     * - [16] 最接近的三数之和
      * 
      * 滑动窗口专题：
      * - [3] 无重复字符的最长子串
@@ -374,9 +483,9 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：9道");
-        System.out.println("- 简单：2道");
-        System.out.println("- 中等：7道");
+        System.out.println("当前已完成题目：12道");
+        System.out.println("- 简单：4道");
+        System.out.println("- 中等：8道");
         System.out.println("- 困难：0道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
