@@ -482,10 +482,10 @@ graph LR
         C2 --> C1[取消订单]
     end
     
-    style T4 fill:#FFB6C1
-    style C1 fill:#FFB6C1
-    style C2 fill:#FFB6C1
-    style C3 fill:#FFB6C1
+    style T4 fill:#742FB5
+    style C1 fill:#742FB5
+    style C2 fill:#742FB5
+    style C3 fill:#742FB5
 ```
 
 ## Saga vs 其他分布式事务方案
@@ -506,11 +506,13 @@ graph LR
 #### 1. Saga vs 2PC（两阶段提交）
 
 **2PC的问题**：
+
 - ❌ **同步阻塞**：所有参与者在准备阶段需要等待
 - ❌ **单点故障**：协调者故障导致全局锁定
 - ❌ **数据不一致**：网络分区可能导致数据不一致
 
 **Saga的优势**：
+
 - ✅ **异步非阻塞**：不需要等待所有服务
 - ✅ **无单点故障**：每个服务独立决策
 - ✅ **最终一致性**：通过补偿保证一致性
@@ -706,41 +708,48 @@ public class OrderManagementSaga {
 **示例代码**：
 
 ```java
+// 定义一个 Saga 类，用于处理“创建订单”这一业务流程的分布式事务
 public class CreateOrderSaga implements SimpleSaga<CreateOrderSagaData> {
-    
+
+    // SagaDefinition 是 Saga 流程的定义对象，包含所有步骤及补偿逻辑
     private SagaDefinition<CreateOrderSagaData> sagaDefinition;
-    
+
+    // 构造函数中定义 Saga 的执行步骤和对应的补偿操作
     public CreateOrderSaga() {
         this.sagaDefinition = 
-            step()
-                .invokeParticipant(this::createOrder)
-                .withCompensation(this::cancelOrder)
-            .step()
-                .invokeParticipant(this::makePayment)
-                .withCompensation(this::refundPayment)
-            .step()
-                .invokeParticipant(this::deductInventory)
-                .withCompensation(this::restoreInventory)
-            .build();
+            step() // 第一步：创建订单
+                .invokeParticipant(this::createOrder)         // 正向操作：调用创建订单服务
+                .withCompensation(this::cancelOrder)         // 补偿操作：如果失败则取消订单
+            .step() // 第二步：支付订单
+                .invokeParticipant(this::makePayment)         // 正向操作：调用支付服务
+                .withCompensation(this::refundPayment)        // 补偿操作：如果失败则退款
+            .step() // 第三步：扣减库存
+                .invokeParticipant(this::deductInventory)     // 正向操作：调用库存服务扣减库存
+                .withCompensation(this::restoreInventory)     // 补偿操作：如果失败则恢复库存
+            .build(); // 构建完整的 Saga 流程定义
     }
-    
+
+    // 实现 SimpleSaga 接口，返回当前 Saga 的定义
     @Override
     public SagaDefinition<CreateOrderSagaData> getSagaDefinition() {
         return sagaDefinition;
     }
-    
+
+    // 正向操作：创建订单，发送 CreateOrderCommand 到 orderService
     private CommandWithDestination createOrder(CreateOrderSagaData data) {
-        return send(new CreateOrderCommand(data.getOrderDetails()))
-            .to("orderService")
-            .build();
+        return send(new CreateOrderCommand(data.getOrderDetails())) // 构造命令对象，包含订单详情
+            .to("orderService")                                     // 指定目标服务为 orderService
+            .build();                                               // 构建命令发送对象
     }
-    
+
+    // 补偿操作：取消订单，发送 CancelOrderCommand 到 orderService
     private CommandWithDestination cancelOrder(CreateOrderSagaData data) {
-        return send(new CancelOrderCommand(data.getOrderId()))
-            .to("orderService")
-            .build();
+        return send(new CancelOrderCommand(data.getOrderId())) // 构造取消命令，包含订单 ID
+            .to("orderService")                                // 指定目标服务为 orderService
+            .build();                                          // 构建命令发送对象
     }
 }
+
 ```
 
 ### 框架对比
@@ -997,6 +1006,7 @@ public class MoneyTransferSaga {
    ```
 
 2. **补偿操作幂等**
+   
    ```java
    // ✅ 好：使用事务ID防止重复补偿
    public void compensateDebit(String txId, String account, BigDecimal amount) {
@@ -1006,7 +1016,7 @@ public class MoneyTransferSaga {
        }
    }
    ```
-
+   
 3. **详细的日志记录**
    ```java
    // ✅ 好：记录每一步操作

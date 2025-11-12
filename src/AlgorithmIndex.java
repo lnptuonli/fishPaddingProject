@@ -225,6 +225,174 @@ public class AlgorithmIndex {
     }
     
     /**
+     * [LeetCode 18] 四数之和 - 4Sum
+     * 难度：★★☆ (中等，但比三数之和复杂)
+     * 标签：数组、双指针、排序
+     * 
+     * 题目简述：
+     * 找出数组中所有和为target的不重复四元组
+     * 
+     * 核心思路：
+     * 三数之和的套娃版：固定两个数 + 双指针找另外两个数
+     * 
+     * 个人笔记：
+     * - 就是三数之和外面再套一层循环
+     * - 时间复杂度O(n³)，比三数之和多一层
+     * - 4个地方去重：i、j、left、right
+     * - ⚠️ 重点：整数溢出！必须用 long 类型
+     * - nums[i] 范围 -10^9，四个数相加会超过 int 范围
+     * - 剪枝优化可以提前结束循环
+     */
+    private void leetcode18_四数之和() {
+        FourSum solution = new FourSum();
+        // Ctrl/Cmd + 点击 FourSum 即可跳转
+    }
+    
+    /**
+     * [LeetCode 3607] 电网维护 - Power Grid Maintenance
+     * 难度：★★★ (中等偏难，涉及并查集)
+     * 标签：并查集、哈希表、图论
+     * 
+     * 题目简述：
+     * 动态查询电网中的在线电站，支持电站离线操作
+     * 
+     * 核心思路：
+     * 并查集维护电网连通性 + TreeSet维护每个电网的最小在线电站
+     * 
+     * 个人笔记：
+     * - 这是一道新类型题目：并查集！
+     * - 并查集用于维护集合的连通性
+     * - 路径压缩 + 按秩合并优化
+     * - TreeSet自动排序，first()获取最小值
+     * - HashMap映射根节点到在线电站集合
+     * - 时间复杂度：O((n+q)*α(c))，α是反阿克曼函数
+     * - 难度较高，需要先理解并查集的基本原理
+     * - 这题是对前面"数组+双指针"系列的升级挑战！
+     */
+    private void leetcode3607_电网维护() {
+        PowerGrid solution = new PowerGrid();
+        // Ctrl/Cmd + 点击 PowerGrid 即可跳转
+    }
+    
+    /**
+     * [LeetCode 2528] 最大化城市的最小电量 - Maximize the Minimum Powered City
+     * 难度：★★★ (困难！综合性极强)
+     * 标签：二分答案、贪心、滑动窗口
+     * 
+     * 题目简述：
+     * 在k个额外供电站的约束下，最大化所有城市中最小电量
+     * 
+     * 核心思路：
+     * 二分答案 + 贪心验证 + 滑动窗口优化
+     * 
+     * 个人笔记：
+     * - 这是"最大化最小值"问题 → 二分答案
+     * - 验证时用贪心：在i+r位置建站（尽可能靠右）
+     * - 滑动窗口快速计算每个城市的电量
+     * - 时间复杂度：O(n * log(sum + k))
+     * - 难度很高！综合了：二分、贪心、滑动窗口
+     * - 需要先理解二分答案的思想
+     * - 建议先做简单的二分答案题练手
+     * - 这是每日一题的困难题，挑战性极强！
+     */
+    private void leetcode2528_最大化城市的最小电量() {
+        MaxPowerStations solution = new MaxPowerStations();
+        // Ctrl/Cmd + 点击 MaxPowerStations 即可跳转
+    }
+    
+    /**
+     * [LeetCode 2169] 得到 0 的操作数 - Count Operations to Obtain Zero
+     * 难度：★☆☆ (简单，但要注意优化)
+     * 标签：数学、模拟
+     * 
+     * 题目简述：
+     * 每次用大的减小的，直到其中一个变成0，求操作次数
+     * 
+     * 核心思路：
+     * 优化模拟：用除法代替多次减法（辗转相除法）
+     * 
+     * 个人笔记：
+     * - 暴力：每次减1次，O(max(num1, num2))
+     * - 优化：每次减多次，O(log(min(num1, num2)))
+     * - 本质：欧几里得算法（GCD）的变形
+     * - 关键：num1 / num2 表示可以减多少次
+     * - 简单题，但体现了优化思想
+     * - 从困难题回来做简单题，感觉轻松多了！
+     */
+    private void leetcode2169_得到0的操作数() {
+        CountOperations solution = new CountOperations();
+        // Ctrl/Cmd + 点击 CountOperations 即可跳转
+    }
+    
+    /**
+     * [LeetCode 95] 不同的二叉搜索树 II - Unique Binary Search Trees II
+     * [LeetCode 94] 问题94：二叉树的中序遍历
+     * [LeetCode 96] 不同的二叉搜索树 (仅返回数量，直接使用卡特兰数)
+     * 难度：★★☆ (中等，经典递归题)
+     * 标签：树、二叉搜索树、递归、回溯
+     * 
+     * 题目简述：
+     * 给定 n，生成所有由 1 到 n 组成的不同二叉搜索树
+     * 
+     * 核心思路：
+     * 递归生成：枚举根节点，递归生成左右子树，组合所有可能
+     * 
+     * 个人笔记：
+     * - 关键：枚举根节点 i，左子树 [start, i-1]，右子树 [i+1, end]
+     * - 组合：左子树的每一种 × 右子树的每一种（笛卡尔积）
+     * - 递归出口：start > end 返回 [null]（空树）
+     * - BST数量 = 卡特兰数：C(3)=5, C(4)=14, C(5)=42
+     * - 时间复杂度：O(n * G(n))，G(n)是卡特兰数
+     * - 这是树的递归的经典题目！
+     * - 理解递归的本质：大问题分解为小问题
+     * - 注意每次都要创建新节点，不能复用
+     * - 加强树与图的练习，这题很有代表性！
+     */
+    private void leetcode95_不同的二叉搜索树II() {
+        UniqueBST_II solution = new UniqueBST_II();
+        // Ctrl/Cmd + 点击 UniqueBST_II 即可跳转
+    }
+    private void leetcode94_二叉树的中序遍历() {
+        UniqueBST_II solution = new UniqueBST_II();
+        UniqueBST_II.TreeNode node =new UniqueBST_II.TreeNode();
+        solution.inorderTraversal(node);
+        // Ctrl/Cmd + 点击 inorderTraversal 即可跳转
+    }
+    private void leetcode96_不同的二叉搜索树() {
+        UniqueBST_II solution = new UniqueBST_II();
+        solution.numTrees(4);
+        // Ctrl/Cmd + 点击 numTrees 即可跳转
+    }
+    
+    /**
+     * [LeetCode 98] 验证二叉搜索树 - Validate Binary Search Tree
+     * 难度：★★☆ (中等，但有陷阱)
+     * 标签：树、二叉搜索树、递归、DFS
+     * 
+     * 题目简述：
+     * 判断一个二叉树是否是有效的二叉搜索树
+     * 
+     * 核心思路：
+     * 递归 + 区间限制：每个节点都有合法的取值范围 [min, max]
+     * 
+     * 个人笔记：
+     * - 常见错误：只检查 left < node < right ❌
+     * - 正确做法：左子树的所有节点 < 根 < 右子树的所有节点
+     * - 方法1：递归传递 [min, max] 范围
+     * - 方法2：中序遍历，检查是否严格递增
+     * - 注意：严格小于和严格大于，不能相等
+     * - 边界值：使用 null 表示无边界（优于 Integer.MIN/MAX）
+     * - 时间复杂度：O(n)
+     * - 这是 BST 验证的经典题目！
+     * - 很多人第一次做会掉进陷阱
+     * - 理解后会对 BST 的性质有更深的认识
+     */
+    private void leetcode98_验证二叉搜索树() {
+        ValidateBST solution = new ValidateBST();
+        // Ctrl/Cmd + 点击 ValidateBST 即可跳转
+    }
+    
+    /**
      * [LeetCode 1] 两数之和 - Two Sum
      * 难度：★☆☆ (简单)
      * 标签：数组、哈希表
@@ -324,6 +492,7 @@ public class AlgorithmIndex {
      * - [7] 整数反转
      * - [13] 罗马数字转整数
      * - [14] 最长公共前缀
+     * - [2169] 得到0的操作数
      * 
      * 中等题目列表：
      * - [2] 两数相加
@@ -335,9 +504,13 @@ public class AlgorithmIndex {
      * - [12] 整数转罗马数字
      * - [15] 三数之和 ⭐
      * - [16] 最接近的三数之和
+     * - [18] 四数之和 ⭐
+     * - [95] 不同的二叉搜索树 II ⭐⭐ (树的递归经典题)
+     * - [98] 验证二叉搜索树 ⭐ (经典陷阱题)
+     * - [3607] 电网维护 ⭐⭐ (并查集入门题)
      * 
      * 困难题目列表：
-     * (暂无)
+     * - [2528] 最大化城市的最小电量 ⭐⭐⭐ (二分答案+贪心+滑动窗口)
      */
     
     // ====================================
@@ -359,6 +532,7 @@ public class AlgorithmIndex {
      * - [11] 盛最多水的容器
      * - [15] 三数之和 ⭐
      * - [16] 最接近的三数之和
+     * - [18] 四数之和 ⭐
      * 
      * 链表专题：
      * - [2] 两数相加
@@ -367,6 +541,7 @@ public class AlgorithmIndex {
      * - [7] 整数反转
      * - [12] 整数转罗马数字
      * - [13] 罗马数字转整数
+     * - [2169] 得到0的操作数（欧几里得算法变形）
      * 
      * 哈希表专题：
      * - [1] 两数之和
@@ -376,10 +551,12 @@ public class AlgorithmIndex {
      * - [11] 盛最多水的容器
      * - [15] 三数之和 ⭐
      * - [16] 最接近的三数之和
+     * - [18] 四数之和 ⭐
      * 
      * 排序专题：
      * - [15] 三数之和
      * - [16] 最接近的三数之和
+     * - [18] 四数之和
      * 
      * 滑动窗口专题：
      * - [3] 无重复字符的最长子串
@@ -390,6 +567,30 @@ public class AlgorithmIndex {
      * 贪心算法专题：
      * - [11] 盛最多水的容器
      * - [12] 整数转罗马数字
+     * 
+     * 树专题：
+     * - [95] 不同的二叉搜索树 II ⭐⭐ (递归生成BST)
+     * - [98] 验证二叉搜索树 ⭐ (BST验证)
+     * 
+     * 递归专题：
+     * - [95] 不同的二叉搜索树 II ⭐⭐ (经典递归+组合)
+     * - [98] 验证二叉搜索树 ⭐ (递归+区间限制)
+     * 
+     * 二叉搜索树专题：
+     * - [95] 不同的二叉搜索树 II ⭐⭐ (生成所有BST)
+     * - [98] 验证二叉搜索树 ⭐ (BST性质验证)
+     * 
+     * DFS专题：
+     * - [98] 验证二叉搜索树 ⭐ (深度优先搜索)
+     * 
+     * 并查集专题：
+     * - [3607] 电网维护 ⭐⭐ (并查集入门)
+     * 
+     * 图论专题：
+     * - [3607] 电网维护
+     * 
+     * 二分查找专题：
+     * - [2528] 最大化城市的最小电量 ⭐⭐⭐ (二分答案)
      */
     
     // ====================================
@@ -483,10 +684,10 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：12道");
-        System.out.println("- 简单：4道");
-        System.out.println("- 中等：8道");
-        System.out.println("- 困难：0道");
+        System.out.println("当前已完成题目：19道");
+        System.out.println("- 简单：5道");
+        System.out.println("- 中等：12道");
+        System.out.println("- 困难：2道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
     }
