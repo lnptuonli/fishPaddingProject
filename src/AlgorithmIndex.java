@@ -393,6 +393,111 @@ public class AlgorithmIndex {
     }
     
     /**
+     * [LeetCode 108] 将有序数组转换为二叉搜索树 - Convert Sorted Array to Binary Search Tree
+     * 难度：★☆☆ (简单)
+     * 标签：树、二叉搜索树、递归、分治
+     * 
+     * 题目简述：
+     * 将一个按升序排列的有序数组，转换为一棵平衡二叉搜索树
+     * 
+     * 核心思路：
+     * 选择中间元素作为根，递归构建左右子树
+     * 
+     * 个人笔记：
+     * - 关键：选择中间元素保证平衡性
+     * - 左半部分构建左子树，右半部分构建右子树
+     * - 递归出口：left > right 返回 null
+     * - 中点计算：mid = left + (right - left) / 2
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(log n)
+     * - 这是 BST 构建的基础题！
+     * - 理解递归构建的思想
+     */
+    private void leetcode108_将有序数组转换为二叉搜索树() {
+        SortedArrayToBST solution = new SortedArrayToBST();
+        // Ctrl/Cmd + 点击 SortedArrayToBST 即可跳转
+    }
+    
+    /**
+     * [LeetCode 109] 有序链表转换为二叉搜索树 - Convert Sorted List to Binary Search Tree
+     * 难度：★★☆ (中等)
+     * 标签：树、二叉搜索树、链表、快慢指针
+     * 
+     * 题目简述：
+     * 将一个按升序排列的有序链表，转换为一棵平衡二叉搜索树
+     * 
+     * 核心思路：
+     * 方法1：转换为数组；方法2：快慢指针找中点
+     * 
+     * 个人笔记：
+     * - 与数组版本的区别：链表无法 O(1) 访问中间元素
+     * - 方法1：转换为数组，O(n)空间，简单直接
+     * - 方法2：快慢指针找中点，O(log n)空间，更优
+     * - 快慢指针：快指针走2步，慢指针走1步
+     * - 需要记录前驱节点，用于断开链表
+     * - 时间复杂度：O(n log n)（快慢指针版）
+     * - 这是链表+树的综合题！
+     * - 掌握快慢指针找中点的技巧
+     */
+    private void leetcode109_有序链表转换为二叉搜索树() {
+        SortedListToBST solution = new SortedListToBST();
+        // Ctrl/Cmd + 点击 SortedListToBST 即可跳转
+    }
+    
+    /**
+     * [LeetCode 206] 反转链表 - Reverse Linked List
+     * 难度：★☆☆ (简单，但必须掌握)
+     * 标签：链表、迭代、递归
+     * 
+     * 题目简述：
+     * 反转一个单链表
+     * 
+     * 核心思路：
+     * 迭代：使用三个指针 prev, curr, next
+     * 
+     * 个人笔记：
+     * - 链表操作的基础题，必须掌握！
+     * - 迭代法：prev=null, curr=head，逐个反转指针
+     * - 关键：先保存 next，再反转 curr.next
+     * - 返回 prev（新的头节点）
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(1)
+     * - 这是链表面试的高频题！
+     * - 也可以用递归实现，但迭代更简洁
+     */
+    private void leetcode206_反转链表() {
+        ReverseLinkedList solution = new ReverseLinkedList();
+        // Ctrl/Cmd + 点击 ReverseLinkedList 即可跳转
+    }
+    
+    /**
+     * [LeetCode 876] 链表的中间结点 - Middle of the Linked List
+     * 难度：★☆☆ (简单)
+     * 标签：链表、快慢指针
+     * 
+     * 题目简述：
+     * 找到链表的中间结点（偶数个节点返回第二个）
+     * 
+     * 核心思路：
+     * 快慢指针：快指针走2步，慢指针走1步
+     * 
+     * 个人笔记：
+     * - 快慢指针的经典应用！
+     * - slow=head, fast=head
+     * - while (fast != null && fast.next != null)
+     * - 快指针到末尾时，慢指针在中间
+     * - 偶数个节点时，返回第二个中间结点
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(1)
+     * - 这是 LeetCode 109 的基础！
+     * - 掌握快慢指针技巧
+     */
+    private void leetcode876_链表的中间结点() {
+        MiddleOfLinkedList solution = new MiddleOfLinkedList();
+        // Ctrl/Cmd + 点击 MiddleOfLinkedList 即可跳转
+    }
+    
+    /**
      * [LeetCode 1] 两数之和 - Two Sum
      * 难度：★☆☆ (简单)
      * 标签：数组、哈希表
@@ -492,6 +597,9 @@ public class AlgorithmIndex {
      * - [7] 整数反转
      * - [13] 罗马数字转整数
      * - [14] 最长公共前缀
+     * - [108] 将有序数组转换为BST
+     * - [206] 反转链表 ⭐ (链表基础必会)
+     * - [876] 链表的中间结点
      * - [2169] 得到0的操作数
      * 
      * 中等题目列表：
@@ -507,6 +615,7 @@ public class AlgorithmIndex {
      * - [18] 四数之和 ⭐
      * - [95] 不同的二叉搜索树 II ⭐⭐ (树的递归经典题)
      * - [98] 验证二叉搜索树 ⭐ (经典陷阱题)
+     * - [109] 有序链表转换为BST ⭐ (链表+树)
      * - [3607] 电网维护 ⭐⭐ (并查集入门题)
      * 
      * 困难题目列表：
@@ -571,17 +680,33 @@ public class AlgorithmIndex {
      * 树专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (递归生成BST)
      * - [98] 验证二叉搜索树 ⭐ (BST验证)
+     * - [108] 将有序数组转换为BST (BST构建)
+     * - [109] 有序链表转换为BST ⭐ (链表+BST)
      * 
      * 递归专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (经典递归+组合)
      * - [98] 验证二叉搜索树 ⭐ (递归+区间限制)
+     * - [108] 将有序数组转换为BST (递归构建)
+     * - [109] 有序链表转换为BST ⭐ (递归+快慢指针)
      * 
      * 二叉搜索树专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (生成所有BST)
      * - [98] 验证二叉搜索树 ⭐ (BST性质验证)
+     * - [108] 将有序数组转换为BST (BST构建基础)
+     * - [109] 有序链表转换为BST ⭐ (BST构建进阶)
      * 
      * DFS专题：
      * - [98] 验证二叉搜索树 ⭐ (深度优先搜索)
+     * 
+     * 链表专题：
+     * - [2] 两数相加
+     * - [109] 有序链表转换为BST ⭐ (链表+树)
+     * - [206] 反转链表 ⭐ (链表基础必会)
+     * - [876] 链表的中间结点 (快慢指针)
+     * 
+     * 快慢指针专题：
+     * - [109] 有序链表转换为BST ⭐ (找链表中点)
+     * - [876] 链表的中间结点 (快慢指针基础)
      * 
      * 并查集专题：
      * - [3607] 电网维护 ⭐⭐ (并查集入门)
@@ -684,9 +809,9 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：19道");
-        System.out.println("- 简单：5道");
-        System.out.println("- 中等：12道");
+        System.out.println("当前已完成题目：23道");
+        System.out.println("- 简单：8道");
+        System.out.println("- 中等：13道");
         System.out.println("- 困难：2道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
