@@ -683,6 +683,58 @@ public class AlgorithmIndex {
     // ====================================
     
     /**
+     * [LeetCode 70] 爬楼梯 - Climbing Stairs
+     * 难度：★☆☆ (简单，DP入门必做)
+     * 标签：动态规划、数学、记忆化搜索
+     * 
+     * 题目简述：
+     * 爬楼梯，每次可以爬1或2个台阶，问有多少种方法爬到楼顶
+     * 
+     * 核心思路：
+     * 经典DP入门题，状态转移方程：dp[i] = dp[i-1] + dp[i-2]
+     * 本质就是斐波那契数列
+     * 
+     * 个人笔记：
+     * - 这是理解DP思想的最佳入门题
+     * - 状态定义：dp[i] = 爬到第i阶的方法数
+     * - 初始条件：dp[0] = 1, dp[1] = 1
+     * - 可以用两个变量优化空间到O(1)
+     * - 时间复杂度：O(n)
+     * - 务必掌握从递归→记忆化递归→DP的演变过程
+     */
+    private void leetcode70_爬楼梯() {
+        ClimbingStairs solution = new ClimbingStairs();
+        // Ctrl/Cmd + 点击 ClimbingStairs 即可跳转
+    }
+    
+    /**
+     * [LeetCode 198] 打家劫舍 - House Robber
+     * 难度：★★☆ (中等，DP经典)
+     * 标签：动态规划、数组
+     * 
+     * 题目简述：
+     * 小偷偷房子，相邻的房子不能同时偷，求能偷到的最大金额
+     * 
+     * 核心思路：
+     * 状态转移方程：dp[i] = max(dp[i-1], dp[i-2] + nums[i])
+     * 对于第i个房子，偷或不偷，取最大值
+     * 
+     * 个人笔记：
+     * - 这是理解"决策型DP"的经典题
+     * - 状态定义：dp[i] = 考虑前i个房子能偷到的最大金额
+     * - 决策：偷第i个 vs 不偷第i个
+     * - 偷第i个：dp[i] = dp[i-2] + nums[i]（不能偷i-1）
+     * - 不偷第i个：dp[i] = dp[i-1]（保持前面的最大值）
+     * - 初始条件：dp[0] = nums[0], dp[1] = max(nums[0], nums[1])
+     * - 时间复杂度：O(n)，空间可优化到O(1)
+     * - 与爬楼梯的区别：爬楼梯是相加，打家劫舍是取max
+     */
+    private void leetcode198_打家劫舍() {
+        HouseRobber solution = new HouseRobber();
+        // Ctrl/Cmd + 点击 HouseRobber 即可跳转
+    }
+    
+    /**
      * [LeetCode 5] 最长回文子串 - Longest Palindromic Substring
      * 难度：★★☆ (中等)
      * 标签：字符串、动态规划、中心扩展
@@ -813,6 +865,8 @@ public class AlgorithmIndex {
      * - [3] 无重复字符的最长子串
      * 
      * 动态规划专题：
+     * - [70] 爬楼梯 ⭐⭐⭐⭐⭐ (DP入门必做)
+     * - [198] 打家劫舍 ⭐⭐⭐⭐ (决策型DP经典)
      * - [5] 最长回文子串
      * 
      * 贪心算法专题：
@@ -988,9 +1042,9 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：27道");
-        System.out.println("- 简单：11道");
-        System.out.println("- 中等：14道");
+        System.out.println("当前已完成题目：29道");
+        System.out.println("- 简单：12道");
+        System.out.println("- 中等：15道");
         System.out.println("- 困难：2道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
