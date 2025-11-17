@@ -996,3 +996,5 @@ map.entrySet().removeIf(entry -> condition);
 | 线程安全+有序 | Collections.synchronizedMap(LinkedHashMap) |
 
 通过掌握这些HashMap知识点，您将能够更高效地使用Java集合框架！
+
+

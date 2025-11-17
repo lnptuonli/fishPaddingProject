@@ -1417,3 +1417,5 @@ public class ConfigController {
 5. **高级特性** - 服务网格、多数据中心
 
 通过掌握Consul，您将能够构建高可用、易扩展的微服务架构！
+
+

@@ -498,6 +498,143 @@ public class AlgorithmIndex {
     }
     
     /**
+     * [LeetCode 110] 平衡二叉树 - Balanced Binary Tree
+     * 难度：★☆☆ (简单)
+     * 标签：树、DFS、递归、自底向上
+     * 
+     * 题目简述：
+     * 判断一个二叉树是否是高度平衡的（每个节点的左右子树高度差 ≤ 1）
+     * 
+     * 核心思路：
+     * 自底向上计算高度，用 -1 表示不平衡
+     * 
+     * 个人笔记：
+     * - 自底向上优化，避免重复计算高度
+     * - getHeight()：返回高度或-1（不平衡）
+     * - 如果左子树不平衡，返回-1
+     * - 如果右子树不平衡，返回-1
+     * - 如果高度差 > 1，返回-1
+     * - 否则返回 max(left, right) + 1
+     * - 时间复杂度：O(n)（自底向上）vs O(n^2)（自顶向下）
+     * - 空间复杂度：O(n)
+     * - 这是自底向上优化的经典案例！
+     */
+    private void leetcode110_平衡二叉树() {
+        BalancedBinaryTree solution = new BalancedBinaryTree();
+        // Ctrl/Cmd + 点击 BalancedBinaryTree 即可跳转
+    }
+    
+    /**
+     * [LeetCode 111] 二叉树的最小深度 - Minimum Depth of Binary Tree
+     * 难度：★☆☆ (简单，但有易错点)
+     * 标签：树、DFS、BFS、递归
+     * 
+     * 题目简述：
+     * 找到从根节点到叶子节点的最短路径的长度
+     * 
+     * 核心思路：
+     * DFS递归，注意只有一侧子树的情况
+     * 
+     * 个人笔记：
+     * - 叶子节点：left == null && right == null
+     * - 易错点：只有一侧子树时，不能用 min(0, depth)
+     * - 如果左子树为空，返回右子树深度 + 1
+     * - 如果右子树为空，返回左子树深度 + 1
+     * - 如果都存在，返回 min(left, right) + 1
+     * - BFS更适合求最小深度（遇到第一个叶子节点即返回）
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(n)
+     * - 注意与最大深度的区别！
+     */
+    private void leetcode111_二叉树的最小深度() {
+        MinDepthOfBinaryTree solution = new MinDepthOfBinaryTree();
+        // Ctrl/Cmd + 点击 MinDepthOfBinaryTree 即可跳转
+    }
+    
+    /**
+     * [LeetCode 112] 路径总和 - Path Sum
+     * 难度：★☆☆ (简单)
+     * 标签：树、DFS、递归、叶子节点判断
+     * 
+     * 题目简述：
+     * 判断是否存在根到叶子的路径，使得路径和等于 targetSum
+     * 
+     * 核心思路：
+     * DFS递归，每次减去当前节点值，到叶子节点时判断
+     * 
+     * 个人笔记：
+     * - 路径必须到叶子节点（left == null && right == null）
+     * - 每次递归：targetSum - root.val
+     * - 到叶子节点时：targetSum == root.val
+     * - 空树返回 false，即使 targetSum == 0
+     * - 不能在中间节点停止
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(n)
+     * - 叶子节点判断是关键！
+     */
+    private void leetcode112_路径总和() {
+        PathSum solution = new PathSum();
+        // Ctrl/Cmd + 点击 PathSum 即可跳转
+    }
+    
+    /**
+     * [LeetCode 105] 从前序与中序遍历序列构造二叉树 - Construct Binary Tree from Preorder and Inorder Traversal
+     * 难度：★★☆ (中等，经典必会)
+     * 标签：树、递归、HashMap、数组分割
+     * 
+     * 题目简述：
+     * 给定前序和中序遍历数组，构造二叉树
+     * 
+     * 核心思路：
+     * 前序第一个元素是根，在中序中找到根，划分左右子树，递归构建
+     * 
+     * 个人笔记：
+     * - 前序遍历：根 -> 左 -> 右，第一个元素是根
+     * - 中序遍历：左 -> 根 -> 右，根节点划分左右子树
+     * - HashMap存储中序索引，O(1)查找根位置
+     * - 左子树大小 = rootIndex - inStart（关键！）
+     * - 前序左子树：[preStart+1, preStart+leftSize]
+     * - 前序右子树：[preStart+leftSize+1, preEnd]
+     * - 中序左子树：[inStart, rootIndex-1]
+     * - 中序右子树：[rootIndex+1, inEnd]
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(n)
+     * - 这是树构建的经典问题！
+     */
+    private void leetcode105_从前序与中序遍历序列构造二叉树() {
+        ConstructBinaryTreeFromPreorderAndInorder solution = new ConstructBinaryTreeFromPreorderAndInorder();
+        // Ctrl/Cmd + 点击 ConstructBinaryTreeFromPreorderAndInorder 即可跳转
+    }
+    
+    /**
+     * [LeetCode 236] 二叉树的最近公共祖先 - Lowest Common Ancestor of a Binary Tree
+     * 难度：★★☆ (中等，面试超高频)
+     * 标签：树、DFS、递归、后序遍历
+     * 
+     * 题目简述：
+     * 找到二叉树中两个节点的最近公共祖先
+     * 
+     * 核心思路：
+     * 后序遍历，找到p或q就返回，左右都找到则当前节点是LCA
+     * 
+     * 个人笔记：
+     * - 后序遍历思想：先处理左右子树，再处理当前节点
+     * - 递归出口：root==null 或 root==p 或 root==q
+     * - 递归查找左右子树
+     * - 如果左右都不为null，当前节点是LCA
+     * - 如果只有一侧不为null，返回那一侧
+     * - 节点可以是自己的祖先
+     * - 返回值含义：找到的节点或LCA
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(n)
+     * - 这是树的经典问题，面试必考！
+     */
+    private void leetcode236_二叉树的最近公共祖先() {
+        LowestCommonAncestor solution = new LowestCommonAncestor();
+        // Ctrl/Cmd + 点击 LowestCommonAncestor 即可跳转
+    }
+    
+    /**
      * [LeetCode 1] 两数之和 - Two Sum
      * 难度：★☆☆ (简单)
      * 标签：数组、哈希表
@@ -598,6 +735,9 @@ public class AlgorithmIndex {
      * - [13] 罗马数字转整数
      * - [14] 最长公共前缀
      * - [108] 将有序数组转换为BST
+     * - [110] 平衡二叉树 ⭐ (自底向上经典)
+     * - [111] 二叉树的最小深度 (易错点)
+     * - [112] 路径总和
      * - [206] 反转链表 ⭐ (链表基础必会)
      * - [876] 链表的中间结点
      * - [2169] 得到0的操作数
@@ -615,7 +755,9 @@ public class AlgorithmIndex {
      * - [18] 四数之和 ⭐
      * - [95] 不同的二叉搜索树 II ⭐⭐ (树的递归经典题)
      * - [98] 验证二叉搜索树 ⭐ (经典陷阱题)
+     * - [105] 从前序与中序构造二叉树 ⭐⭐ (经典必会)
      * - [109] 有序链表转换为BST ⭐ (链表+树)
+     * - [236] 二叉树的最近公共祖先 ⭐⭐⭐ (面试超高频)
      * - [3607] 电网维护 ⭐⭐ (并查集入门题)
      * 
      * 困难题目列表：
@@ -680,14 +822,21 @@ public class AlgorithmIndex {
      * 树专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (递归生成BST)
      * - [98] 验证二叉搜索树 ⭐ (BST验证)
+     * - [105] 从前序与中序构造二叉树 ⭐⭐ (树构建经典)
      * - [108] 将有序数组转换为BST (BST构建)
      * - [109] 有序链表转换为BST ⭐ (链表+BST)
+     * - [110] 平衡二叉树 ⭐ (高度计算)
+     * - [111] 二叉树的最小深度 (深度计算)
+     * - [112] 路径总和 (路径遍历)
+     * - [236] 二叉树的最近公共祖先 ⭐⭐⭐ (LCA经典)
      * 
      * 递归专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (经典递归+组合)
      * - [98] 验证二叉搜索树 ⭐ (递归+区间限制)
+     * - [105] 从前序与中序构造二叉树 ⭐⭐ (递归+范围划分)
      * - [108] 将有序数组转换为BST (递归构建)
      * - [109] 有序链表转换为BST ⭐ (递归+快慢指针)
+     * - [236] 二叉树的最近公共祖先 ⭐⭐⭐ (后序遍历递归)
      * 
      * 二叉搜索树专题：
      * - [95] 不同的二叉搜索树 II ⭐⭐ (生成所有BST)
@@ -697,6 +846,10 @@ public class AlgorithmIndex {
      * 
      * DFS专题：
      * - [98] 验证二叉搜索树 ⭐ (深度优先搜索)
+     * - [110] 平衡二叉树 ⭐ (自底向上DFS)
+     * - [111] 二叉树的最小深度 (DFS递归)
+     * - [112] 路径总和 (DFS路径遍历)
+     * - [236] 二叉树的最近公共祖先 ⭐⭐⭐ (DFS后序遍历)
      * 
      * 链表专题：
      * - [2] 两数相加
@@ -716,6 +869,26 @@ public class AlgorithmIndex {
      * 
      * 二分查找专题：
      * - [2528] 最大化城市的最小电量 ⭐⭐⭐ (二分答案)
+     */
+    
+    // ====================================
+    // 统计信息
+    // ====================================
+    
+    /**
+     * 已完成题目统计
+     * 
+     * 总计：29 题 🎉
+     * 
+     * 按难度分类：
+     * - 简单：11 题
+     * - 中等：16 题
+     * - 困难：2 题
+     * 
+     * 树专题完成度：9 题
+     * - BST构建与验证：4题 (95, 98, 108, 109)
+     * - 树的遍历与构建：2题 (105, 236)
+     * - 树的深度与平衡：3题 (110, 111, 112)
      */
     
     // ====================================
@@ -743,6 +916,12 @@ public class AlgorithmIndex {
      *    - HashMap：快速查找
      *    - StringBuilder：字符串拼接
      *    - 滑动窗口：连续子串问题
+     * 
+     * 5. 树的易错点：
+     *    - [111] 最小深度：只有一侧子树时不能用min(0, depth)
+     *    - [112] 路径总和：必须到叶子节点，不能在中间停止
+     *    - [105] 树构建：左子树大小 = rootIndex - inStart
+     *    - [236] LCA：后序遍历，左右都找到时当前节点是LCA
      */
     
     /**
@@ -809,9 +988,9 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：23道");
-        System.out.println("- 简单：8道");
-        System.out.println("- 中等：13道");
+        System.out.println("当前已完成题目：27道");
+        System.out.println("- 简单：11道");
+        System.out.println("- 中等：14道");
         System.out.println("- 困难：2道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
