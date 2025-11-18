@@ -231,7 +231,6 @@ public class MinDepthOfBinaryTree {
         return Math.min(leftDepth,rightDepth)+1;
     }
 
-
     /**
      * 辅助方法：构建二叉树（层序数组）
      */
@@ -362,6 +361,3 @@ public class MinDepthOfBinaryTree {
         System.out.println("\n注意区分最大深度和最小深度的处理差异！");
     }
 }
-
-
-
