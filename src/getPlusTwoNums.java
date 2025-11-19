@@ -18,7 +18,7 @@ public class getPlusTwoNums {
     public static class ListNode {
         //这里是类的静态上下文部分
         int val;        // 节点存储的整数值
-        ListNode next;  // 指向下一个节点的指针。
+        ListNode next=null;  // 指向下一个节点的指针。
         //这是一个自引用类型，在进行编译时，编译器知道这是一个类名，并且已经在当前作用域中声明，并且next是一个引用变量
         //能够指向ListNode类型的对象。这样虽然整个类型还没有定义结束，但类名已经可用
         //在C语言中，这就相当于设计了一个指向自己的指针
