@@ -179,41 +179,28 @@ public class HouseRobberII {
         //    - dp[i] = max(dp[i-1], dp[i-2] + nums[i])
         
         // 在这里编写你的实现代码
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        // ============================================
-        // TODO: 实现结束
-        // ============================================
-        
-        return 0;  // 记得返回结果
+        //说简单也简单，既然首位两个房子不能同时偷，那么可以分成考虑首不考虑尾，考虑尾不考虑首两个问题，取大的
+        //有点晚了，我赶时间，不再废话了
+        int[] dp=new int[nums.length];
+        if(nums.length==1)
+            return nums[0];
+        if(nums.length==2)//有两家，只能挑一家去偷
+            return Math.max(nums[0],nums[1]);
+
+        //考虑首
+        dp[0]=nums[0];
+        dp[1]=Math.max(nums[0],nums[1]);
+        for(int i=2;i<nums.length-1;i++)
+            dp[i]=Math.max(dp[i-2]+nums[i],dp[i-1]);//决策：是继承dp[i-2]的并且抢i，还是保留dp[i-1]的路过i
+        int max= dp[nums.length-2];
+
+        //考虑尾
+        dp[1]=nums[1];
+        dp[2]=Math.max(nums[1],nums[2]);
+        for(int i=3;i<nums.length;i++)
+            dp[i]=Math.max(dp[i-2]+nums[i],dp[i-1]);
+        return Math.max(max,dp[nums.length-1]);
+
     }
     
     /**
