@@ -735,6 +735,91 @@ public class AlgorithmIndex {
     }
     
     /**
+     * [LeetCode 213] 打家劫舍 II - House Robber II
+     * 难度：★★☆ (中等，环形数组DP)
+     * 标签：动态规划、数组、环形数组
+     * 
+     * 题目简述：
+     * 房子围成一圈（环形），相邻的不能同时偷，求最大金额
+     * 
+     * 核心思路：
+     * 破环成链！分两种情况：
+     * - 情况1：考虑第一个房子，范围[0, n-2]
+     * - 情况2：不考虑第一个，范围[1, n-1]
+     * - 答案 = max(情况1, 情况2)
+     * 
+     * 个人笔记：
+     * - 这是环形数组DP的经典模板
+     * - 核心约束：第一个和最后一个不能同时偷
+     * - 破环成链：转化为两个线性问题（LeetCode 198）
+     * - robRange 方法就是 198 的解法
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(1)
+     * - 通用思路：环形问题 → 分情况讨论 → 转化为线性问题
+     */
+    private void leetcode213_打家劫舍II() {
+        HouseRobberII solution = new HouseRobberII();
+        // Ctrl/Cmd + 点击 HouseRobberII 即可跳转
+    }
+    
+    /**
+     * [LeetCode 746] 使用最小花费爬楼梯 - Min Cost Climbing Stairs
+     * 难度：★☆☆ (简单，爬楼梯变体)
+     * 标签：动态规划、数组
+     * 
+     * 题目简述：
+     * 爬楼梯，每个台阶有花费，求到达顶部的最小花费
+     * 
+     * 核心思路：
+     * 状态转移方程：dp[i] = min(dp[i-1] + cost[i-1], dp[i-2] + cost[i-2])
+     * 
+     * 个人笔记：
+     * - 这是爬楼梯的变体（70题的进阶）
+     * - 状态定义：dp[i] = 到达第i个台阶的最小花费
+     * - 初始条件：dp[0] = 0, dp[1] = 0（起点免费）
+     * - 关键区别：顶部在 cost.length，不是 cost.length-1
+     * - 与爬楼梯70的区别：
+     *   * 70题：dp[i] = dp[i-1] + dp[i-2]（求方法数，相加）
+     *   * 746题：dp[i] = min(...)（求最小花费，取min）
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(1)（可优化）
+     */
+    private void leetcode746_使用最小花费爬楼梯() {
+        MinCostClimbingStairs solution = new MinCostClimbingStairs();
+        // Ctrl/Cmd + 点击 MinCostClimbingStairs 即可跳转
+    }
+    
+    /**
+     * [LeetCode 53] 最大子数组和 - Maximum Subarray
+     * 难度：★★☆ (中等，Kadane's Algorithm 经典)
+     * 标签：动态规划、数组、分治
+     * 
+     * 题目简述：
+     * 找出一个具有最大和的连续子数组，返回其最大和
+     * 
+     * 核心思路：
+     * Kadane's Algorithm（卡登算法）
+     * 状态转移方程：dp[i] = max(dp[i-1] + nums[i], nums[i])
+     * 
+     * 个人笔记：
+     * - 这是DP中的经典算法，面试超高频！
+     * - 状态定义：dp[i] = 以 nums[i] 结尾的最大子数组和
+     * - 关键理解："以i结尾"，不是"前i个的最大和"
+     * - 决策：加入前面的子数组 vs 重新开始
+     * - 初始条件：dp[0] = nums[0]
+     * - 答案：max(dp[0], dp[1], ..., dp[n-1])
+     * - 等价变换：dp[i] = max(dp[i-1], 0) + nums[i]
+     * - 含义：如果前面的和是负数，就舍弃
+     * - 时间复杂度：O(n)
+     * - 空间复杂度：O(1)
+     * - Kadane's Algorithm 是算法史上的经典之作！
+     */
+    private void leetcode53_最大子数组和() {
+        MaximumSubarray solution = new MaximumSubarray();
+        // Ctrl/Cmd + 点击 MaximumSubarray 即可跳转
+    }
+    
+    /**
      * [LeetCode 5] 最长回文子串 - Longest Palindromic Substring
      * 难度：★★☆ (中等)
      * 标签：字符串、动态规划、中心扩展
@@ -866,7 +951,10 @@ public class AlgorithmIndex {
      * 
      * 动态规划专题：
      * - [70] 爬楼梯 ⭐⭐⭐⭐⭐ (DP入门必做)
+     * - [746] 使用最小花费爬楼梯 ⭐⭐⭐ (爬楼梯变体)
      * - [198] 打家劫舍 ⭐⭐⭐⭐ (决策型DP经典)
+     * - [213] 打家劫舍 II ⭐⭐⭐⭐ (环形数组DP)
+     * - [53] 最大子数组和 ⭐⭐⭐⭐⭐ (Kadane算法，面试必考)
      * - [5] 最长回文子串
      * 
      * 贪心算法专题：
@@ -1042,9 +1130,9 @@ public class AlgorithmIndex {
         System.out.println("2. Ctrl/Cmd + 点击类名跳转到对应题解");
         System.out.println("3. 查看分类索引快速定位相关题目");
         System.out.println();
-        System.out.println("当前已完成题目：29道");
-        System.out.println("- 简单：12道");
-        System.out.println("- 中等：15道");
+        System.out.println("当前已完成题目：32道");
+        System.out.println("- 简单：13道");
+        System.out.println("- 中等：17道");
         System.out.println("- 困难：2道");
         System.out.println();
         System.out.println("加油！继续刷题！💪");
