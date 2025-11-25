@@ -240,12 +240,36 @@ public class PartitionEqualSubsetSum {
         int target=sum/2;
         //然后这题就成了凑硬币问题，区别在于同一位置的元素只能用一次
         //对于状态转移方程，我打算设计成，当前位置为结尾的子串下，target最接近0但不小于0的余额。
-        int[] dp=new int[nums.length];
-        dp[0]=target-nums[0];
-        for(int i=1;i<nums.length;i++){
-            for(int j=0;j<i;j++);
+        //这让我想起了一个狗屁算法，叫卡登算法，即对于每一个新元素，检查是应该延续状态，还是重新开始
+        //然而这题还有一些要考虑的东西。某个人提醒我，对于不能重复使用元素的背包问题，应当倒序遍历，防止已经用过的面值被重复使用
+        //此外，对于硬币问题，就应该遍历每一个没有用到的面值
+
+        //经过学习，以下是01背包问题的标准套路：
+        //定义：dp[j] 表示是否能凑出和为 j，那么dp[0]自然为true，因为不需要任何元素
+        //转移：对于每个数 num(注意是每个数，这需要遍历)，我们要么选它，要么不选它。
+        //如果选它，那么 dp[j] = dp[j - num]。如果不选它，那么 dp[j] 保持原值。
+        //其次是关键技巧：倒序遍历，如果正序遍历 j，那么在同一轮里，dp[j - num] 可能已经被更新过，会导致重复使用同一个元素多次。
+        boolean[] dp=new boolean[target+1];//dp应初始化为，每个余额都有对应的状态序列
+        dp[0]=true;
+        for (int num : nums) {//对于每一种面值
+            for (int j = target; j >= num; j--) {//遍历，检查每一种状态是否可达，并且由于dp[0]=true，nums=target的情况总是可达的
+                dp[j] = dp[j] || dp[j - num];
+                //这就是 01 背包的特点：即使循环很多次，真正能更新的状态取决于已有的 true 状态。
+                //后续再加入其他元素（比如 2、3、4…），才会逐步把更多的 dp[j] 更新为 true，最终扩展到目标值。
+                /*处理元素	新增可达状态（dp[j] = true）	说明
+                1	1	因为 dp[0] 已经是 true，所以 dp[1] 更新为 true
+                2	2, 3	dp[2] = dp[0]+2，dp[3] = dp[1]+2
+                3	3, 4, 5, 6	dp[3] 已经 true，新增 dp[4], dp[5], dp[6]
+                4	4, 5, 6, 7, 8, 9, 10	扩展更多状态
+                5	5, 6, 7, 8, 9, 10, 11, 12, 13, 14	此时 dp[14] = true，目标达成
+                6	更多状态（不再关键）	已经达成目标
+                7	更多状态（不再关键）	已经达成目标*/
+            }
         }
-        return dp[nums.length - 1] == 0;
+        return dp[target];
+        //正所谓:
+        //01背包倒序走，避免元素用两遍
+        //完全背包正序行，允许元素用无限
     }
     
     /**
@@ -259,7 +283,7 @@ public class PartitionEqualSubsetSum {
         
         // 测试用例1
         System.out.println("测试用例1:");
-        int[] nums1 = {1, 5, 11, 5};
+        int[] nums1 = {2, 2, 1, 1};
         boolean result1 = solution.canPartition(nums1);
         System.out.println("输入: nums = " + java.util.Arrays.toString(nums1));
         System.out.println("输出: " + result1);
