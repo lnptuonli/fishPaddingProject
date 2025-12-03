@@ -28,14 +28,21 @@
 **Tomcat** 是一个 **Web 服务器**（也叫 Servlet 容器）。
 
 **通俗理解**：
+
 - 你写的 Java Web 程序不能直接运行，需要一个"容器"来运行它
 - Tomcat 就是这个容器，它负责：
   - 监听端口（比如 8080）
   - 接收浏览器的 HTTP 请求
   - 把请求交给你的 Java 代码处理
   - 把处理结果返回给浏览器
+- 即：
+  - 浏览器：发起 HTTP 请求（点菜）。
+  - Tomcat：接收请求，解析 HTTP 协议，找到对应的 Servlet，把请求交给它（服务员传菜单）。
+  - Servlet/你的代码：执行业务逻辑，生成响应（厨师做菜）。
+  - Tomcat：把响应封装成 HTTP 格式，返回给浏览器（服务员端菜）。
 
 **类比**：
+
 > Tomcat 就像一个"餐厅服务员"：
 > - 客人（浏览器）点菜（发送请求）
 > - 服务员（Tomcat）把订单交给厨师（你的代码）
@@ -58,6 +65,7 @@
 - 用途：打包 Java 类库、工具类
 
 **WAR（Web Application aRchive）**：
+
 - Web 应用归档文件，专门用于打包 Web 应用
 - 包含：
   - Java 类文件（`.class`）
@@ -67,6 +75,7 @@
   - 依赖的 JAR 包
 
 **传统部署方式**：
+
 ```
 1. 开发 Web 应用
 2. 打包成 WAR 文件（例如：myapp.war）
@@ -85,6 +94,7 @@
 ```
 
 **为什么 Spring Boot 不需要 WAR？**
+
 - Spring Boot 内嵌了 Tomcat
 - JAR 包里已经包含了 Tomcat
 - 不需要单独安装服务器
@@ -167,11 +177,13 @@ pom.xml             # Maven 配置文件
 ```
 
 **Maven 仓库**：
+
 - **本地仓库**：你电脑上的 jar 包缓存（默认：`~/.m2/repository`）
 - **中央仓库**：Maven 官方仓库（https://repo.maven.apache.org）
 - **私服**：公司内部的仓库（如 Nexus）
 
 **类比**：
+
 > Maven 就像"应用商店"：
 > - 你需要什么库（jar 包），在 pom.xml 中"下单"
 > - Maven 自动从"仓库"下载
@@ -184,6 +196,7 @@ pom.xml             # Maven 配置文件
 **注解** 是 Java 提供的一种"标签"机制，用于给代码添加元数据。
 
 **语法**：
+
 ```java
 @注解名
 @注解名(参数)
@@ -205,7 +218,7 @@ pom.xml             # Maven 配置文件
 ```
 
 **注解的作用**：
-1. **给编译器看**：`@Override` 让编译器检查是否真的重写了
+1. **给编译器看**：`@Override` 让编译器检查是否真的重写了，本质上就是一个“告诉编译器帮我检查”的标签
 2. **给框架看**：`@Service` 让 Spring 知道这是一个 Bean
 3. **给工具看**：`@Deprecated` 让 IDE 显示删除线
 
@@ -628,7 +641,8 @@ public class HelloController {
 **传统方式**：
 ```java
 public class UserService {
-    // 自己创建依赖对象
+    // 自己创建依赖对象，写死了依赖，换实现必须改源码。
+    // 你没法在测试时替换掉 UserDao，只能用真实的数据库访问逻辑。
     private UserDao userDao = new UserDao();
     
     public void saveUser() {
@@ -642,11 +656,16 @@ public class UserService {
 - 难以替换实现
 
 **IOC 方式**：
+
 ```java
 public class UserService {
     // 由容器注入依赖对象
+    // Spring 容器负责创建和管理 UserDao，并在需要时注入到 UserService。
+    // UserService 不关心 UserDao 的具体实现，只要有一个符合接口的 Bean 就能用。
+    // 易于替换：你可以在容器里注册不同的 UserDao 实现（比如 JdbcUserDao、MockUserDao），Spring 会帮你注入。
+    // 易于测试：在单元测试里，你可以用 @MockBean 或者直接传入一个假的 UserDao，而不用改 UserService 的代码。
     @Autowired
-    private UserDao userDao;
+    private UserDao userDao;//不用自己new
     
     public void saveUser() {
         userDao.save();
