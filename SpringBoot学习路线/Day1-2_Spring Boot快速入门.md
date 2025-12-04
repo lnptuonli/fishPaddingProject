@@ -684,6 +684,24 @@ public class UserService {
 
 ### 2.2 什么是 DI（依赖注入）？
 
+**注入：**是把“已经被 Spring 容器创建和管理的对象（Bean）”按需“塞进”另一个对象的过程。本质是控制权的转移：对象的创建、生命周期和依赖关系由容器负责，而不是类自己 new。
+
+**定义：**注入是“把依赖交给你”。某个类声明“我需要 UserDao”，Spring 容器在启动时创建好 UserDao，然后在合适的时机把它放到 UserService 的属性里（构造器、Setter 或字段）。
+
+**注入的两个阶段：**
+
+  ***1.注册/创建：***容器发现可作为 Bean 的类（比如带 @Component/@Service/@Repository 的类，或配置类里的 @Bean 方法），**实例化**并放进容器。
+
+  ***2.注入/装配：***容器解析每个 Bean 的依赖（@Autowired、构造器参数、方法参数），找到匹配的 Bean，并“装配进去”。
+
+#### 注册 vs 注入
+
+- **注册（Bean 定义）：**告诉容器“这些类/方法产出的对象要被管理”。来源包括：
+  - **注解扫描：**@Component/@Service/@Controller/@Repository
+  - **显式定义：**@Configuration 类中的 @Bean 方法
+- **注入（依赖装配）：**在某个 Bean 中标注“我需要 X”，容器把已注册的 X 的实例放进去。
+  - **匹配规则：**默认按类型匹配；有多个候选时用 @Qualifier 指定名称，或 @Primary 设定默认。
+
 **依赖注入** 是 IOC 的实现方式，Spring 通过以下方式注入依赖：
 
 **1. 构造器注入（推荐）**
@@ -757,7 +775,7 @@ public class UserService {
 
 **Spring Boot 中的容器**：
 ```java
-@SpringBootApplication
+@SpringBootApplication//即启动类
 public class DemoApplication {
     public static void main(String[] args) {
         // 启动 Spring Boot，返回 ApplicationContext（容器）
@@ -821,7 +839,7 @@ public class MyBean {
         System.out.println("1. 构造器执行");
     }
     
-    @PostConstruct
+    @PostConstruct//手工定义的初始化逻辑，执行时由Spring自动控制
     public void init() {
         System.out.println("2. @PostConstruct 执行");
     }
@@ -953,7 +971,7 @@ public class UserService {
 **4. `@Primary`（设置默认 Bean）**
 ```java
 @Repository
-@Primary
+@Primary//（通常情况下只能有一个，多个会报错）
 public class UserDaoImpl implements UserDao {
     // ...
 }
@@ -975,20 +993,31 @@ public class AppConfig {
 }
 ```
 - 标记配置类
-- 替代 XML 配置
+- 替代 XML 配置，比方说
+- <beans>
+    -<bean id="userService" class="com.example.UserService"/>
+    -</beans>
 
 **2. `@Bean`（定义 Bean）**
 ```java
 @Configuration
-public class AppConfig {
+public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
-        return new DataSource();
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl("jdbc:mysql://localhost:3306/test");
+        ds.setUsername("root");
+        ds.setPassword("123456");
+        return ds;
     }
 }
 ```
 - 在配置类中定义 Bean
 - 方法名默认为 Bean 的名称
+- 好处：
+  - **类型安全**：IDE 能检查方法返回类型，避免拼写错误。
+  - **更灵活**：可以在方法里写逻辑，比如根据条件返回不同实现。
+  - **统一风格**：不用在 XML 和 Java 之间来回切换，所有配置都在代码里。
 
 **3. `@ComponentScan`（组件扫描）**
 ```java
