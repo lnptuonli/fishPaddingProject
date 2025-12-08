@@ -160,6 +160,7 @@ public class UserService {
 ```
 
 **2. 项目构建**：
+
 ```bash
 mvn clean      # 清理编译结果
 mvn compile    # 编译代码
@@ -736,6 +737,15 @@ public class UserService {
 ```
 
 **3. 字段注入（最常用，但不推荐）**
+
+**写法**：直接在类的成员变量上加 `@Autowired`。
+
+**特点**：
+
+- 简单直观，代码量少。
+- 但依赖是通过反射注入的，字段本身是 `private`，不易测试和维护。
+- 不利于单元测试，因为无法轻易在构造函数里传入 mock 对象。
+
 ```java
 @Service
 public class UserService {
@@ -882,6 +892,7 @@ public class UserService {
 - 本质上和 `@Component` 一样，但语义更清晰
 
 **3. `@Repository`（数据访问层）**
+
 ```java
 @Repository
 public class UserDao {
@@ -946,6 +957,7 @@ public class UserService {
 - 默认必须注入（required=true）
 
 **2. `@Resource`（JDK 注解）**
+
 ```java
 @Service
 public class UserService {
@@ -1143,12 +1155,16 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     
     // toString
-    @Override
+    @Override//只有接口或者父类方法的实现才能写这个，编译器会检查父类中是否有此方法的定义
     public String toString() {
         return "User{id=" + id + ", username='" + username + "', email='" + email + "'}";
     }
     
     // equals 和 hashCode
+    // 在 Java 中，所有类都继承自 Object，而 Object 定义了一个默认的 equals(Object o) 方法。
+默认实现是比较两个对象的 引用地址（即是否是同一个对象）。
+
+如果你希望比较对象的“内容”是否相等，就需要 重写 equals 方法。
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -1187,6 +1203,7 @@ public interface UserDao {
 - ✅ **易于测试**：可以 mock 接口
 
 **实现类**：
+
 ```java
 package com.example.demo.dao.impl;
 
@@ -1305,10 +1322,11 @@ public class UserServiceImpl implements UserService {
 
 **Service 层的职责**：
 1. **业务逻辑处理**：
+   
    - 数据校验（用户名是否重复）
    - 数据转换（密码加密）
    - 业务规则（VIP 用户打折）
-
+   
 2. **事务管理**：
    ```java
    @Transactional  // 这个方法中的所有数据库操作要么全成功，要么全失败
@@ -1320,6 +1338,7 @@ public class UserServiceImpl implements UserService {
    ```
 
 3. **调用其他 Service**：
+   
    ```java
    @Service
    public class OrderService {
@@ -1494,6 +1513,11 @@ public String saveUser(@RequestBody User user) {
    ↓
 10. Tomcat 把 JSON 返回给浏览器
 ```
+DAO 层：负责执行数据库查询，返回一个 User 实体对象。
+
+Service 层：接收 DAO 返回的 User，可能在这里做一些业务逻辑处理（比如校验、加工、组合其他数据）。然后再把结果返回给 Controller。
+
+Controller 层：最终接收 Service 返回的 User，交给 Spring MVC 框架。Spring Boot 会自动把这个对象序列化成 JSON，返回给浏览器。
 
 **测试**：
 
@@ -1646,6 +1670,7 @@ my:
 ```
 
 **读取自定义配置**：
+
 ```java
 @Component
 public class MyConfig {
@@ -1658,7 +1683,8 @@ public class MyConfig {
     
     @Value("${my.email}")
     private String email;
-}
+}//Spring Boot 内部用的是 PropertyEditor / ConversionService 来完成这种转换。
+//如果类型转换不正确，会在启动阶段直接报错Failed to convert property value of type 'java.lang.String' to required type 'int'
 ```
 
 ---
@@ -1773,15 +1799,18 @@ java -jar demo.jar --server.port=9090
 ### 2. 掌握 Bean 的创建和注入
 
 **Bean 的创建方式**：
+
 1. `@Component` 及其衍生注解（`@Service`, `@Repository`, `@Controller`）
 2. `@Configuration` + `@Bean`
 
 **Bean 的注入方式**：
+
 1. **构造器注入**（推荐）
 2. Setter 注入
 3. 字段注入
 
 **最佳实践**：
+
 ```java
 @Service
 public class UserService {
@@ -1958,7 +1987,21 @@ DELETE /users/{id}     # 删除用户
 | 依赖注入 | 手动传入 | 自动注入 |
 | 作用域 | 每次 new 都是新对象 | 默认单例 |
 
+**单例模式**：
+设计模式层面：单例模式（Singleton Pattern）指的是 *一个类在整个应用运行期间只会有一个实例*，并且*全局都能访问到这个实例*。
+Spring 容器管理的 Bean，默认作用域就是单例（singleton）。
+这意味着：
+
+- 当容器启动时，Spring 会创建每个 Bean 的一个实例。
+- 后续所有地方注入这个 Bean 时，拿到的都是同一个对象引用。
+
+**单例 Bean 内部状态要小心**：
+
+- 因为所有线程共享同一个实例，如果你在 Bean 里保存可变数据（比如成员变量），可能会出现线程安全问题。
+- 推荐把 Bean 设计成 **无状态**（只提供方法，不保存请求相关数据）。
+
 **例子**：
+
 ```java
 // 普通对象
 UserService service1 = new UserService();
@@ -2045,6 +2088,7 @@ public void testSaveUser() {
 ```
 
 **例子**：
+
 ```java
 @Service
 public class UserService {
@@ -2058,6 +2102,33 @@ UserDao dao = container.getBean(UserDao.class);
 service.setUserDao(dao);
 ```
 
+**Bean 的创建过程总结**
+
+### 1. 扫描与注册
+- Spring Boot 启动时，扫描所有带有 `@Component`、`@Service`、`@Repository`、`@Controller` 等注解的类。
+- 将这些类的信息注册到 **BeanDefinition** 中，记录类名、作用域、依赖等元数据。
+
+### 2. 实例化对象
+- 容器根据 BeanDefinition 的信息，通过 **反射** 调用构造器创建对象。
+- 如果是无参构造器，直接实例化；如果有参数，Spring 会先解析依赖再调用。
+
+### 3. 依赖注入
+- Spring 扫描 Bean 上的 `@Autowired`、`@Value` 等注解。
+- 从容器里找到对应的依赖 Bean，通过反射或 setter 方法注入到字段/构造器。
+
+### 4. 初始化回调
+- 如果 Bean 实现了 `InitializingBean` 或定义了 `@PostConstruct` 方法，Spring 会在依赖注入完成后调用这些方法。
+- 用于执行初始化逻辑，比如资源加载、连接建立。
+
+### 5. 放入容器
+- 完成初始化的 Bean 会被放入 Spring 容器。
+- 后续所有地方注入该 Bean 时，拿到的都是这个实例（默认作用域为单例）。
+
+### 6. 生命周期管理
+- Spring 容器负责管理 Bean 的整个生命周期，包括创建、依赖注入、初始化、销毁。
+- 如果定义了 `@PreDestroy` 方法或实现了 `DisposableBean`，在容器关闭时会调用销毁逻辑。
+
+
 ---
 
 ### Q5: 为什么构造器注入比字段注入好？
@@ -2065,6 +2136,7 @@ service.setUserDao(dao);
 **A**：
 
 **字段注入的问题**：
+
 ```java
 @Service
 public class UserService {
@@ -2308,6 +2380,7 @@ public class UserService {
 ### 5. Spring Boot 配置文件的加载顺序？
 
 **答案**：
+
 1. 命令行参数（优先级最高）
 2. 系统属性
 3. 操作系统环境变量

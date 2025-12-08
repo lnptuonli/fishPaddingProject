@@ -998,3 +998,5 @@ map.entrySet().removeIf(entry -> condition);
 通过掌握这些HashMap知识点，您将能够更高效地使用Java集合框架！
 
 
+
+

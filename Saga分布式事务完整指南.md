@@ -1398,3 +1398,5 @@ public void processBatchOptimized(List<Order> orders) {
 通过掌握Saga模式，您将能够在微服务架构中优雅地处理分布式事务问题！
 
 
+
+
