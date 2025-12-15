@@ -193,41 +193,35 @@ public class LongestPalindromicSubsequence {
         //    - 但区间DP的思路更直观
         
         // 在这里编写你的实现代码
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        // ============================================
-        // TODO: 实现结束
-        // ============================================
-        
-        return 0;  // 记得返回结果
+        int length=s.length();
+        if(length==1)
+            return 1;
+        if (length==0)
+            return 0;
+        //定义区间状态矩阵int[i][j]，i=j代表区间指针指向同一个元素，此时自身组成回文
+        int[][] dp=new int[length][length];
+        //初始化状态矩阵
+        for(int i=0;i<length;i++){
+            for (int j=0;j<length;j++){
+                if(i==j) dp[i][j]=1;
+                else dp[i][j]=0;//代表尚未定义
+            }
+        }
+        //定义遍历窗口大小，从大小2开始
+        for(int window=2;window<=length;window++){
+            //定义指针，指向窗口的第一个元素，定长窗口向后滚动
+            for(int i=0;i+window-1<length;i++){
+                int j=i+window-1;//窗口结束位置
+                if(s.charAt(i)==s.charAt(j)){
+                    dp[i][j]=dp[i+1][j-1]+2;//注意此处，dp[i][j]的前一状态是其子串，因为这里首尾相等，符合回文定义，所以前后均缩了一个元素
+                }
+                else{
+                    dp[i][j]=Math.max(dp[i+1][j],dp[i][j-1]);//沿用前一状态的最大值，前一状态是其子串，比其长度少1的子串需要考虑两个
+                }
+            }
+        }
+        return dp[0][length-1];//最终不会每个元素都有值，因为j>i的地方是无意义的
+
     }
     
     /**
