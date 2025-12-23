@@ -79,6 +79,7 @@ Java 类         ←→  数据库表
 - MyBatis 根据方法生成 SQL 或执行 XML 中的 SQL
 
 **示例**：
+
 ```java
 public interface UserMapper {
     User findById(Long id);         // 查询
@@ -89,6 +90,7 @@ public interface UserMapper {
 ```
 
 **两种实现方式**：
+
 1. **注解方式**：在接口方法上写 SQL
 2. **XML 方式**：在 XML 文件中写 SQL（推荐）
 
@@ -101,6 +103,7 @@ public interface UserMapper {
 **为什么需要连接池？**
 
 **❌ 不使用连接池**：
+
 ```java
 // 每次查询都创建新连接
 Connection conn = DriverManager.getConnection(url, user, password);
@@ -245,6 +248,7 @@ mybatis:
 - `serverTimezone=Asia/Shanghai`：设置时区
 
 **连接池参数**：
+
 - `minimum-idle`：最小空闲连接数，池中始终保持的连接数
 - `maximum-pool-size`：最大连接数，池中最多有多少连接
 - `connection-timeout`：获取连接的超时时间
@@ -312,6 +316,7 @@ public class User {
 ```
 
 **注意事项**：
+
 - 类名和表名对应（驼峰 ↔ 下划线）
 - 属性名和字段名对应（驼峰 ↔ 下划线）
 - MyBatis 会自动转换（配置了 `map-underscore-to-camel-case: true`）
@@ -563,6 +568,7 @@ src/main/resources/
 ```
 
 **4. `<select>`**：查询
+
 ```xml
 <select id="selectById" resultMap="BaseResultMap">
     SELECT * FROM user WHERE id = #{id}
@@ -1192,6 +1198,7 @@ public interface UserMapper {
 **PageHelper** 是 MyBatis 的分页插件，可以自动为查询添加分页功能。
 
 **不用 PageHelper（手动分页）**：
+
 ```java
 // 需要自己计算 offset
 int offset = (page - 1) * size;
@@ -1200,6 +1207,7 @@ Long total = userMapper.countAll();
 ```
 
 **使用 PageHelper（自动分页）**：
+
 ```java
 // PageHelper 自动添加 LIMIT，自动查询总数
 PageHelper.startPage(page, size);
@@ -1449,6 +1457,7 @@ public class UserService {
 **@Transactional 参数**：
 
 **1. rollbackFor**：指定哪些异常回滚
+
 ```java
 @Transactional(rollbackFor = Exception.class)
 public void save(User user) {
@@ -1516,6 +1525,7 @@ public void saveLog(User user) {
 ---
 
 **3. isolation**：事务隔离级别
+
 ```java
 @Transactional(isolation = Isolation.READ_COMMITTED)
 public void save(User user) {
@@ -1523,21 +1533,516 @@ public void save(User user) {
 }
 ```
 
-**隔离级别**：
+#### 隔离级别总览
 
-| 隔离级别 | 脏读 | 不可重复读 | 幻读 | 说明 |
-|---------|-----|----------|-----|------|
-| **READ_UNCOMMITTED** | ✅ | ✅ | ✅ | 读未提交（最低） |
-| **READ_COMMITTED** | ❌ | ✅ | ✅ | 读已提交（Oracle 默认） |
-| **REPEATABLE_READ** | ❌ | ❌ | ✅ | 可重复读（MySQL 默认） |
-| **SERIALIZABLE** | ❌ | ❌ | ❌ | 串行化（最高） |
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 | 性能 | 并发度 |
+|---------|-----|----------|-----|------|-------|
+| **READ_UNCOMMITTED** | ✅ 可能 | ✅ 可能 | ✅ 可能 | 最高 | 最高 |
+| **READ_COMMITTED** | ❌ 不会 | ✅ 可能 | ✅ 可能 | 较高 | 较高 |
+| **REPEATABLE_READ** | ❌ 不会 | ❌ 不会 | ✅ 可能* | 一般 | 一般 |
+| **SERIALIZABLE** | ❌ 不会 | ❌ 不会 | ❌ 不会 | 最低 | 最低 |
 
-**术语解释**：
-- **脏读**：读到未提交的数据
-- **不可重复读**：同一事务中，两次读取结果不同（UPDATE）
-- **幻读**：同一事务中，两次查询记录数不同（INSERT/DELETE）
+> **注**：MySQL InnoDB 的 REPEATABLE_READ 通过 Next-Key Lock 解决了幻读问题
 
-**推荐**：使用数据库默认隔离级别（MySQL 是 REPEATABLE_READ）
+---
+
+#### 核心概念详解
+
+**1. 脏读（Dirty Read）**
+
+**定义**：读到其他事务**未提交**的数据
+
+**问题场景**：
+```
+时间线          事务 A                       事务 B
+T1          开始事务
+T2          余额 = 1000
+T3                                        开始事务
+T4                                        余额 = 1000 - 500 = 500
+T5          读取余额 = 500（脏读！）
+T6                                        回滚事务（余额恢复 1000）
+T7          余额实际是 1000，但 A 读到了 500
+```
+
+**代码示例**：
+```java
+// 事务 A（READ_UNCOMMITTED 隔离级别）
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+public void processOrder() {
+    // 读取账户余额
+    BigDecimal balance = accountMapper.getBalance(userId);  // 读到 500
+    
+    // 基于余额进行业务判断
+    if (balance.compareTo(new BigDecimal("100")) > 0) {
+        // 创建订单（但实际余额是 1000，不是 500）
+        orderMapper.createOrder(order);
+    }
+}
+
+// 事务 B
+@Transactional
+public void withdraw() {
+    accountMapper.updateBalance(userId, -500);  // 扣款 500
+    // 还没提交
+    throw new RuntimeException("取消扣款");  // 回滚
+}
+```
+
+**后果**：事务 A 基于错误的数据做决策，导致业务错误
+
+---
+
+**2. 不可重复读（Non-Repeatable Read）**
+
+**定义**：同一事务中，两次读取**同一行**数据，结果不同（因为被其他事务 **UPDATE** 了）
+
+**问题场景**：
+```
+时间线          事务 A                       事务 B
+T1          开始事务
+T2          第一次读取：余额 = 1000
+T3                                        开始事务
+T4                                        UPDATE：余额 = 1000 - 500 = 500
+T5                                        提交事务
+T6          第二次读取：余额 = 500（不一致！）
+T7          提交事务
+```
+
+**代码示例**：
+```java
+// 事务 A（READ_COMMITTED 隔离级别）
+@Transactional(isolation = Isolation.READ_COMMITTED)
+public void statisticsReport() {
+    // 第一次查询
+    BigDecimal balance1 = accountMapper.getBalance(userId);  // 1000
+    
+    // 中间做一些其他操作...
+    Thread.sleep(1000);
+    
+    // 第二次查询（同一行数据）
+    BigDecimal balance2 = accountMapper.getBalance(userId);  // 500（不一样了！）
+    
+    // 生成统计报表（数据不一致）
+    if (!balance1.equals(balance2)) {
+        // 数据不一致，报表错误
+    }
+}
+
+// 事务 B
+@Transactional
+public void updateBalance() {
+    accountMapper.updateBalance(userId, -500);  // 扣款 500
+    // 提交
+}
+```
+
+**后果**：同一事务中前后读取的数据不一致，报表、统计结果错误
+
+---
+
+**3. 幻读，只与范围有关（Phantom Read）**
+
+**定义**：同一事务中，两次查询**同一范围**数据，记录数不同（因为被其他事务 **INSERT/DELETE** 了）
+
+**问题场景**：
+
+```
+时间线          事务 A                       事务 B
+T1          开始事务
+T2          第一次查询：COUNT(*) = 10
+T3                                        开始事务
+T4                                        INSERT 一条新记录
+T5                                        提交事务
+T6          第二次查询：COUNT(*) = 11（多了一条！）
+T7          提交事务
+```
+
+**代码示例**：
+```java
+// 事务 A（REPEATABLE_READ 隔离级别，但仍可能幻读）
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void processOrders() {
+    // 第一次查询：查询待处理订单
+    List<Order> orders1 = orderMapper.selectPendingOrders();  // 10 条
+    log.info("第一次查询：{} 条订单", orders1.size());  // 10
+    
+    // 中间做一些处理...
+    for (Order order : orders1) {
+        processOrder(order);
+    }
+    
+    // 第二次查询：再次查询待处理订单
+    List<Order> orders2 = orderMapper.selectPendingOrders();  // 11 条（多了一条！）
+    log.info("第二次查询：{} 条订单", orders2.size());  // 11
+    
+    // 问题：第二次查询多了一条，导致业务逻辑错误
+}
+
+// 事务 B
+@Transactional
+public void createOrder() {
+    orderMapper.insert(newOrder);  // 插入新订单
+    // 提交
+}
+```
+
+**后果**：统计数据不一致，可能导致重复处理或遗漏处理
+
+**注意**：
+- MySQL InnoDB 的 `REPEATABLE_READ` 通过 **Next-Key Lock**（间隙锁）解决了幻读
+- 但如果查询条件没有用到索引，仍可能出现幻读
+
+---
+
+#### 四种隔离级别详解
+
+**1. READ_UNCOMMITTED（读未提交）**
+
+**特点**：
+- 最低的隔离级别
+- 事务可以读取其他事务**未提交**的数据
+- 会出现：脏读、不可重复读、幻读
+
+**实现原理**：
+- 读不加锁，写加排他锁
+- 读操作不会被阻塞
+
+**使用场景**：
+- ❌ **几乎不使用**（数据不一致风险太大）
+- 可能场景：允许极小误差的实时统计（访问量、点击量）
+
+**示例**：
+```java
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+public void countPageViews() {
+    // 读取页面访问量（允许误差）
+    Long views = statsMapper.getPageViews(pageId);
+    // 即使读到未提交的数据，误差也可以接受
+}
+```
+
+---
+
+**2. READ_COMMITTED（读已提交）**
+
+**特点**：
+- 只能读取其他事务**已提交**的数据
+- 解决了：脏读
+- 仍会出现：不可重复读、幻读
+
+**实现原理**：
+- 读操作开始时创建快照（MVCC数据库版本控制机制）
+- 每次读取都获取最新的已提交数据
+- 写操作加排他锁
+
+**使用场景**：
+
+- ✅ **Oracle 默认隔离级别**
+- ✅ 适合**大部分 OLTP（在线事务处理）系统**
+- ✅ 对数据一致性要求不高，但要避免脏读
+
+**示例**：
+```java
+@Transactional(isolation = Isolation.READ_COMMITTED)
+public void processPayment(Long orderId) {
+    // 查询订单状态（读取最新已提交的数据）
+    Order order = orderMapper.selectById(orderId);
+    
+    if ("PENDING".equals(order.getStatus())) {
+        // 处理支付
+        paymentService.pay(order);
+        
+        // 更新订单状态
+        orderMapper.updateStatus(orderId, "PAID");
+    }
+}
+
+// 特点：
+// 1. 不会读到未提交的数据（避免脏读）
+// 2. 每次读取都是最新的已提交数据
+// 3. 但同一事务中，多次读取可能不一致（不可重复读）
+```
+
+**优点**：
+- 性能较好，并发度高
+- 避免了脏读
+- 适合大部分业务场景
+
+**缺点**：
+- 同一事务中，多次读取可能不一致
+- 不适合需要"可重复读"的场景（如报表、统计）
+
+---
+
+**3. REPEATABLE_READ（可重复读）**
+
+**特点**：
+- 同一事务中，多次读取**同一行**数据，结果一致
+- 解决了：脏读、不可重复读
+- 理论上仍会出现：幻读（但 MySQL InnoDB 解决了）
+
+**实现原理**：
+- 事务开始时创建一致性快照（MVCC）
+- 读操作基于快照，不读取其他事务的修改
+- 写操作加排他锁
+- MySQL InnoDB 通过 **Next-Key Lock**（行锁 + 间隙锁，即临键锁）防止幻读，通过锁住“记录 + 前间隙”，阻止其他事务在查询范围内插入新记录，从而彻底解决当前读下的幻读问题（当然，这个机制依赖索引，如果查询不用索引导致回落到全表扫描，会导致没有间隙可锁，这个机制就会失效）
+
+**使用场景**：
+
+- ✅ **MySQL InnoDB 默认隔离级别**
+- ✅ 需要**可重复读**的场景（报表、统计、对账）
+- ✅ 需要**事务内（即一个事务内部进行多次查询）数据一致性**的场景
+
+**示例1：报表统计**
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public OrderReport generateReport(LocalDate date) {
+    // 查询当天订单总数
+    Long totalOrders = orderMapper.countByDate(date);  // 100
+    
+    // 中间做一些计算...
+    
+    // 再次查询（结果一致）
+    Long totalOrders2 = orderMapper.countByDate(date);  // 仍然是 100
+    
+    // 查询订单明细（即使其他事务插入了新订单，这里也读不到）
+    List<Order> orders = orderMapper.selectByDate(date);
+    
+    // 生成报表（数据一致）
+    return new OrderReport(totalOrders, orders);
+}
+```
+
+**示例2：库存扣减**
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void decreaseStock(Long productId, Integer quantity) {
+    // 第一次查询库存
+    Integer stock1 = productMapper.getStock(productId);  // 100
+    
+    if (stock1 < quantity) {
+        throw new RuntimeException("库存不足");
+    }
+    
+    // 中间做一些业务处理...
+    
+    // 第二次查询库存（仍然是 100，不会读到其他事务的修改）
+    Integer stock2 = productMapper.getStock(productId);  // 100
+    
+    // 扣减库存
+    productMapper.updateStock(productId, stock1 - quantity);
+}
+```
+
+**优点**：
+- 同一事务中，读取数据一致
+- 适合报表、统计、对账
+- MySQL InnoDB 还解决了幻读
+
+**缺点**：
+- 性能略低于 READ_COMMITTED
+- 可能出现锁等待
+
+---
+
+**4. SERIALIZABLE（串行化）**
+
+**特点**：
+- 最高的隔离级别
+- 事务串行执行，完全隔离
+- 解决了：脏读、不可重复读、幻读
+
+**实现原理**：
+- 读操作加**共享锁**（S 锁）
+- 写操作加**排他锁**（X 锁）
+- 读读可以并发，读写、写写互斥
+- 完全阻塞式，几乎无并发
+
+**使用场景**：
+- ✅ **对数据一致性要求极高**的场景（金融转账、库存扣减）
+- ✅ **并发度极低**的场景
+- ❌ 高并发场景不推荐（性能差）
+
+**示例：银行转账**
+```java
+@Transactional(isolation = Isolation.SERIALIZABLE)
+public void transfer(Long fromId, Long toId, BigDecimal amount) {
+    // 查询余额（加共享锁，其他事务不能修改）
+    BigDecimal fromBalance = accountMapper.getBalance(fromId);
+    BigDecimal toBalance = accountMapper.getBalance(toId);
+    
+    if (fromBalance.compareTo(amount) < 0) {
+        throw new RuntimeException("余额不足");
+    }
+    
+    // 扣款（加排他锁）
+    accountMapper.updateBalance(fromId, fromBalance.subtract(amount));
+    
+    // 加款（加排他锁）
+    accountMapper.updateBalance(toId, toBalance.add(amount));
+    
+    // 整个过程完全隔离，不会被其他事务干扰
+}
+```
+
+**优点**：
+- 完全避免并发问题
+- 数据一致性最高
+
+**缺点**：
+- 性能最差
+- 并发度最低
+- 容易造成锁等待和死锁
+
+---
+
+#### 隔离级别对比与选择
+
+**性能 vs 一致性 权衡**：
+
+```
+隔离级别         性能         一致性        并发度       推荐度
+READ_UNCOMMITTED  最高         最低          最高        ❌ 不推荐
+READ_COMMITTED    较高         一般          较高        ✅ 推荐（Oracle 默认）
+REPEATABLE_READ   一般         较高          一般        ✅ 推荐（MySQL 默认）
+SERIALIZABLE      最低         最高          最低        ⚠️ 特殊场景
+```
+
+---
+
+**如何选择隔离级别？**
+
+**1. 大部分 Web 应用：使用数据库默认**
+```java
+@Transactional  // 使用默认隔离级别
+public void normalOperation() {
+    // MySQL：REPEATABLE_READ
+    // Oracle：READ_COMMITTED
+}
+```
+
+**2. 需要读取最新数据：READ_COMMITTED**
+```java
+@Transactional(isolation = Isolation.READ_COMMITTED)
+public void checkOrderStatus(Long orderId) {
+    // 需要读取最新的订单状态
+    Order order = orderMapper.selectById(orderId);
+}
+```
+
+**3. 需要数据一致性（报表、统计）：REPEATABLE_READ**
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public SalesReport generateReport(LocalDate date) {
+    // 报表数据需要在事务内保持一致
+    Long totalSales = orderMapper.sumByDate(date);
+    List<Order> orders = orderMapper.selectByDate(date);
+    return new SalesReport(totalSales, orders);
+}
+```
+
+**4. 金融级一致性：SERIALIZABLE**
+```java
+@Transactional(isolation = Isolation.SERIALIZABLE)
+public void criticalOperation() {
+    // 金融转账、库存扣减等关键操作
+}
+```
+
+---
+
+#### 面试高频问题
+
+**Q1: MySQL 的 REPEATABLE_READ 是否完全解决了幻读？**
+
+**A**：不完全。
+
+**场景1：普通查询（解决了幻读）**
+
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void test() {
+    // 第一次查询
+    List<User> users1 = userMapper.selectAll();  // 10 条
+    
+    // 其他事务插入了新数据
+    
+    // 第二次查询（仍然是 10 条，因为用了 MVCC 快照）
+    List<User> users2 = userMapper.selectAll();  // 10 条
+}
+```
+
+**场景2：当前读（可能出现幻读）**
+
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void test() {
+    // 第一次查询（当前读，加锁）
+    List<User> users1 = userMapper.selectForUpdate();  // 10 条
+    
+    // 其他事务插入了新数据（如果查询条件没用索引，可能插入成功）
+    
+    // 第二次查询
+    List<User> users2 = userMapper.selectForUpdate();  // 11 条（幻读）
+}
+```
+
+**总结**：
+- **快照读（普通 SELECT）**：通过 MVCC 解决幻读
+- **当前读（SELECT ... FOR UPDATE）**：通过 Next-Key Lock 解决幻读
+- 但如果查询条件没有用到索引，锁范围可能扩大，仍可能出现幻读
+
+---
+
+**Q2: 不同隔离级别如何实现的？**
+
+**A**：
+
+**1. MVCC（多版本并发控制）**
+- 适用于：READ_COMMITTED、REPEATABLE_READ
+- 原理：每行记录有多个版本，事务读取对自己可见的版本
+- 优点：读不加锁，提高并发
+
+**2. 锁机制**
+- 适用于：SERIALIZABLE
+- 原理：读加共享锁，写加排他锁
+- 缺点：并发度低
+
+**3. MySQL InnoDB 的实现**
+```
+READ_UNCOMMITTED  → 不加锁，直接读最新数据
+READ_COMMITTED    → MVCC，每次读取创建新快照
+REPEATABLE_READ   → MVCC + Next-Key Lock
+SERIALIZABLE      → 读加共享锁，写加排他锁
+```
+
+---
+
+**Q3: 为什么 Oracle 默认是 READ_COMMITTED，MySQL 默认是 REPEATABLE_READ？**
+
+**A**：
+
+**Oracle 选择 READ_COMMITTED**：
+- OLTP 场景为主（在线事务处理）
+- 需要读取最新数据
+- 性能优先
+
+**MySQL 选择 REPEATABLE_READ**：
+- 兼容性考虑（老版本 MySQL 的主从复制需要）
+- 提供更高的一致性保证
+- InnoDB 通过 MVCC + Next-Key Lock 优化了性能
+
+**现代应用**：
+- 大部分场景使用数据库默认即可
+- 根据具体需求调整
+
+---
+
+**推荐**：
+- ✅ **一般场景**：使用数据库默认隔离级别
+- ✅ **需要读最新数据**：READ_COMMITTED
+- ✅ **需要可重复读（报表、统计）**：REPEATABLE_READ
+- ⚠️ **金融级操作**：SERIALIZABLE（慎用，性能差）
 
 ---
 
@@ -1862,6 +2367,7 @@ boolean matches = new BCryptPasswordEncoder().matches(rawPassword, encodedPasswo
 **A**：
 
 **一级缓存（Session 级别）**：
+
 - 默认开启
 - 同一个 SqlSession 中，相同查询会使用缓存
 - 执行 INSERT、UPDATE、DELETE 会清空缓存
