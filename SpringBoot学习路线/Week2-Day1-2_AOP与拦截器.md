@@ -26,7 +26,12 @@
 
 **AOP（Aspect Oriented Programming）** = 面向切面编程
 
+**一句话理解**：
+
+AOP = 不修改业务代码的前提下，在方法前后插入你想要的逻辑（比如日志、权限、事务、监控）。
+
 **通俗理解**：
+
 - AOP 是一种编程思想，不是具体的技术
 - 将"横切关注点"从业务逻辑中分离出来
 - 让你在不修改原代码的情况下，增强功能
@@ -34,7 +39,7 @@
 **类比**：
 > **没有 AOP**：就像做菜时，每道菜都要自己洗菜、切菜、炒菜、装盘
 > 
-> **有了 AOP**：把"洗菜"、"装盘"这些通用的步骤提取出来，所有菜都可以共用
+> **有了 AOP**：把"洗菜"、"装盘"这些通用的步骤提取出来，所有菜都可以共用（日志、校验、权限等）
 
 **横切关注点**：
 ```
@@ -146,6 +151,12 @@ graph TB
 
 **概念详解**：
 
+**Pointcut（切点）**：定义“哪些方法要被增强”
+
+**Advice（通知）**：定义“增强逻辑”（前置、后置、环绕等）
+
+**Aspect（切面）**：切点 + 通知
+
 **1. 切面（Aspect）**
 ```java
 @Aspect
@@ -158,6 +169,7 @@ public class LogAspect {
 - 包含了"在哪里增强"和"增强什么"
 
 **2. 切点（Pointcut）**
+
 ```java
 @Pointcut("execution(* com.example.service.*.*(..))")
 public void serviceLayer() {}
@@ -166,6 +178,7 @@ public void serviceLayer() {}
 - 就像"筛选条件"
 
 **3. 通知（Advice）**
+
 ```java
 @Before("serviceLayer()")
 public void logBefore() {
@@ -176,6 +189,7 @@ public void logBefore() {
 - 有 5 种通知类型
 
 **4. 连接点（JoinPoint）**
+
 ```java
 @Before("serviceLayer()")
 public void logBefore(JoinPoint joinPoint) {
@@ -205,8 +219,9 @@ Spring AOP 在运行时织入（动态代理）
 > - 离开后：清理（afterCompletion）
 
 **特点**：
+
 - 基于 Spring MVC
-- 只拦截 Controller 请求
+- **只拦截 Controller 请求**
 - 可以获取 Handler 信息
 
 ---
@@ -223,7 +238,7 @@ Spring AOP 在运行时织入（动态代理）
 
 **特点**：
 - 基于 Servlet 规范
-- 拦截所有请求（包括静态资源）
+- 拦截**所有请求（包括静态资源）**
 - 比拦截器更底层
 
 ---
@@ -386,7 +401,7 @@ execution(modifiers? return-type declaring-type?method-name(param-types) throws?
 // Controller 层
 @Pointcut("execution(* com.example.controller..*.*(..))")
 
-// 带 @Transactional 注解的方法
+// 带 @Transactional （事务）注解的方法
 @Pointcut("@annotation(org.springframework.transaction.annotation.Transactional)")
 
 // 指定类的所有方法
@@ -424,7 +439,7 @@ import java.util.Arrays;
 public class LogAspect {
     
     /**
-     * 定义切点：Service 层的所有方法
+     * 定义切点：Service 层的所有方法（定义切点前、后、异常时执行什么逻辑）
      */
     @Pointcut("execution(* com.example.demo.service..*.*(..))")
     public void serviceLayer() {
@@ -898,6 +913,8 @@ public class CacheAspect {
 
 **拦截器（Interceptor）** = Spring MVC 提供的拦截请求的机制
 
+**AOP 是“方法级别”的切面编程；** **Interceptor 是“请求级别”的 Web 过滤机制。**
+
 **执行流程**：
 
 ```mermaid
@@ -1221,7 +1238,51 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
 **过滤器（Filter）** = Servlet 规范提供的组件
 
+@WebFilter 是 **Servlet 容器（Tomcat、Jetty、Undertow）内部的机制**。请求的执行顺序是：
+
+```markdown
+请求 → 操作系统 → TCP/IP → 防火墙 → Nginx → Tomcat → Filter → Interceptor → Controller
+```
+
+**过滤器是在 Tomcat 里执行的。** **也就是说，攻击流量已经成功打到你的服务器了。**
+
+泛洪攻击（Flood Attack）的本质是：
+
+- 占满你的带宽
+- 占满你的 TCP 连接
+- 占满你的服务器线程
+- 让你的服务根本无法响应正常请求
+
+这些事情发生在 **过滤器之前**。
+
+所以过滤器根本来不及出手。
+
+过滤器能做的是：
+
+- 登录校验
+- 参数校验
+- XSS 过滤
+- SQL 注入过滤
+- 请求日志
+- 权限控制
+- CORS
+- 限流（轻量级）
+
+这些都是 **应用层安全**。
+
+但它不能做：
+
+- DDoS 防御
+- SYN Flood 防御
+- UDP Flood 防御
+- CC 攻击防御（高并发恶意请求）
+- 带宽耗尽攻击
+- 网络层攻击
+
+这些属于 **网络层 / 传输层安全**。
+
 **特点**：
+
 - 基于 Servlet 规范，不依赖 Spring
 - 拦截所有请求（包括静态资源、JSP）
 - 在拦截器之前执行
@@ -2116,6 +2177,7 @@ public class LogAspect {
 3. ✅ **易维护**：修改通用功能时，只需修改一处
 
 **示例**：
+
 ```java
 // 没有 AOP（代码重复）
 public void method1() {
@@ -2576,4 +2638,3 @@ public void handleException(JoinPoint joinPoint, Exception ex) {
 ---
 
 **有问题随时问我！我会一直陪伴你的学习之旅！🚀**
-
